@@ -442,7 +442,6 @@ def verifyMarker(markerID, lineNum):
 
 	global markerDict
 
-#			'from MRK_Mouse_View where mgiID = "%s" and chromosome = "UN"' % (markerID), 'auto')
 	markerKey = None
 
 	if markerDict.has_key(markerID):
@@ -450,7 +449,7 @@ def verifyMarker(markerID, lineNum):
 		return(0, '')
 	else:
 		results = db.sql('select _Marker_key, symbol ' + \
-			'from MRK_Mouse_View where mgiID = "%s"' % (markerID), 'auto')
+			'from MRK_Mouse_View where mgiID = "%s" and chromosome = "UN"' % (markerID), 'auto')
 		for r in results:
 			markerKey = r['_Marker_key']
 			markerSymbol = r['symbol']
