@@ -1,3 +1,9 @@
+TAG: mappingload-3-1-0-1
+DATE: 02/01/2005
+STAFF: lec
+RELEASE: A
+CHANGES: fixed bug in mappingload.py
+
 TAG: mappingload-2-0-2
 DATE: 06/21/2004
 STAFF: lec

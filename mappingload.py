@@ -524,6 +524,13 @@ def createExperiments():
 	# experiment records exists
 
 	if len(results) > 0:
+		if mode == 'full':
+			# delete the existing *details*.....
+			db.sql('delete from MLD_Marker where _Refs_key = %d' % (referenceKey), 'auto', execute = not DEBUG)
+			db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
+				' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
+				'auto', execute = not DEBUG)
+
 		for r in results:
 			exptDict[r['chromosome']] = r['_Expt_key']
 			s = db.sql('select maxKey = max(sequenceNum) + 1 from MLD_Expt_Marker where _Expt_key = %d' % (r['_Expt_key']), 'auto')
@@ -531,13 +538,6 @@ def createExperiments():
 			  seqExptDict[r['_Expt_key']] = 1
 			else:
 			  seqExptDict[r['_Expt_key']] = s[0]['maxKey']
-
-		if mode == 'full':
-			# delete the existing *details*.....
-			db.sql('delete from MLD_Marker where _Refs_key = %d' % (referenceKey), 'auto', execute = not DEBUG)
-			db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
-				' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
-				'auto', execute = not DEBUG)
 
 	# if no experiment records exist....create them
 
