@@ -17,9 +17,6 @@ setenv MODE		preview|incremental|full
 setenv JNUM		specifictoyourload
 setenv EXPERIMENTTYPE	"Text-Physical Mapping"
 
-setenv DBUTILITIESPATH		/usr/local/mgi/dbutils/mgidbutilities
-setenv DBUSER			mgd_dbo
-setenv DBPASSWORDFILE		${DBUTILITIESPATH}/.mgd_dbo_password
 setenv MAPPINGLOAD		/usr/local/mgi/dataload/mappingload
 
 cd `dirname $0`

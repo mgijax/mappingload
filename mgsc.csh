@@ -20,7 +20,7 @@ setenv INPUTFILE	$3
 setenv MODE		$4
 
 setenv JNUM		78475
-setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
+setenv EXPERIMENTTYPE	"Text-Physical Mapping"
 
 setenv DBUTILITIESPATH		/usr/local/mgi/dbutils/mgidbutilities
 setenv DBUSER			mgd_dbo
