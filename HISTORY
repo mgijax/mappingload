@@ -1,3 +1,9 @@
+TAG: mappingload-1-0-2
+DATE: 10/21/2002
+STAFF: lec
+RELEASE: A
+CHANGES: added db.useOneConnection()
+
 TAG: mappingload-1-0-1
 DATE: 09/06/2002
 STAFF: lec
