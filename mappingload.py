@@ -29,7 +29,9 @@
 #	A tab-delimited file in the format:
 #		field 1: MGI Acc ID of Symbol
 #		field 2: Chromosome
-#		field 3: Band (optional)
+#		field 3: Update Marker Chromosome (yes/no)
+#		field 4: Band (optional)
+#		field 5: Assay Type
 #
 # Parameters:
 #	-S = database server
@@ -39,7 +41,6 @@
 #	-M = mode (incremental, full, preview)
 #	-I = input file of mapping data
 #	-R = Reference (J: in format #####)
-#	-A = Assay (ex. "sequence analysis", must be defined in MLD_Assay_Types)
 #	-E = Experiment Type ("TEXT")
 #
 #	processing modes:
@@ -78,10 +79,7 @@
 #	2.  Verify the J: is valid.
 #	    If the verification fails, report the error and stop.
 #
-#	3.  Verify the Assay is valid.
-#	    If the verification fails, report the error and stop.
-#
-#	4.  Create the master Experiment records and Accession records.
+#	3.  Create the master Experiment records and Accession records.
 #	    If Experiment records already exist for the Reference, delete the details
 #	    (but not the master experiment records themselves).
 #
@@ -90,16 +88,24 @@
 #	1.  Verify the Marker Acc ID is valid.  Duplicates are reported as errors.
 #	    If the verification fails, report the error and skip the record.
 #
-#	2.  Verify the Chromosome is valid.
+#	2.  Verify the Assay is valid.
 #	    If the verification fails, report the error and skip the record.
 #
-#	3.  Determine the Experiment key for the Chromosome.
+#	3.  Verify the Chromosome is valid.
+#	    If the verification fails, report the error and skip the record.
 #
-#	4.  Create MLD_Marker record for the Marker.
+#	5.  Determine the Experiment key for the Chromosome.
 #
-#	5.  Create MLD_Expt_Marker record for the Marker.
+#	5.  Create MLD_Marker record for the Marker.
+#
+#	6.  Create MLD_Expt_Marker record for the Marker.
 #
 # History:
+#
+# lec	01/30/2003
+#	- TR 3928 (Fantom2 load)
+#		. provide Assay value for each input record
+#		. provide Update Chromosome? value for each input record
 #
 # lec	08/29/2002
 #	- created for TR 4010, but other loads can use this module
@@ -152,7 +158,6 @@ mgiPrefix = "MGI:"
 exptType = "TEXT"
 bcpdelim = "|"
 
-assayKey = 0		# Assay Key
 referenceKey = 0	# Reference Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
 description = ''	# MLD_Expt_Marker.description
@@ -226,10 +231,10 @@ def init():
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
 	global exptFile, markerFile, exptMarkerFile, accFile, sqlFile
 	global exptFileName, markerFileName, exptMarkerFileName, accFileName, sqlFileName
-	global mode, exptType, assayKey, referenceKey
+	global mode, exptType, referenceKey
  
 	try:
-		optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:A:E:')
+		optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:')
 	except:
 		showUsage()
  
@@ -243,7 +248,6 @@ def init():
 	user = ''
 	password = ''
 	inputFileName = ''
-	assay = ''
 	jnum = ''
  
 	for opt in optlist:
@@ -261,8 +265,6 @@ def init():
                         inputFileName = opt[1]
                 elif opt[0] == '-R':
                         jnum = opt[1]
-                elif opt[0] == '-A':
-                        assay = regsub.gsub('"', '', opt[1])
                 elif opt[0] == '-E':
                         exptType = regsub.gsub('"', '', opt[1])
                 else:
@@ -277,7 +279,6 @@ def init():
 	   mode == '' or \
 	   inputFileName == '' or \
 	   jnum == '' or \
-	   assay == '' or \
 	   exptType == '':
 		showUsage()
 
@@ -350,7 +351,6 @@ def init():
 	errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
 
 	referenceKey = verifyReference(jnum)
-	assayKey = verifyAssay(assay)
 
 def verifyMode():
 	'''
@@ -388,8 +388,6 @@ def verifyAssay(assay):
 	#	Assay key if found
 	#
 	'''
-
-	global assayKey
 
 	assayKey = 0
 
@@ -451,7 +449,7 @@ def verifyMarker(markerID, lineNum):
 		return(0, '')
 	else:
 		results = db.sql('select _Marker_key, symbol ' + \
-			'from MRK_Mouse_View where mgiID = "%s" and chromosome = "UN"' % (markerID), 'auto')
+			'from MRK_Mouse_View where mgiID = "%s"' % (markerID), 'auto')
 		for r in results:
 			markerKey = r['_Marker_key']
 			markerSymbol = r['symbol']
@@ -619,11 +617,14 @@ def processFile():
 		try:
 			markerID = tokens[0]
 			chromosome = tokens[1]
-			band = tokens[2]
+			updateChr = tokens[2]
+			band = tokens[3]
+			assay = tokens[4]
 		except:
 			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
+		assayKey = verifyAssay(assay)
 		error = not verifyChromosome(chromosome, lineNum)
 
 		# determine experiment key for this chromosome
@@ -634,7 +635,7 @@ def processFile():
 		else:
 			chrExptKey = exptDict[chromosome]
 
-		if markerKey == 0 or chrExptKey == 0:
+		if markerKey == 0 or assaykey == 0 or chrExptKey == 0:
 			# set error flag to true
 			error = 1
 
@@ -663,11 +664,21 @@ def processFile():
 		# increment marker sequence number for the experiment
 		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
 
-		# update marker's chromosome and cytogenetic band
-		sqlFile.write('update MRK_Marker ' + \
-			'set chromosome = "%s" ' % (chromosome) + \
-			', cytogeneticOffset = "%s" ' % (band) + \
-			'where _Marker_key = %d' % (markerKey) + '\ngo\n')
+		# update marker's chromosome...
+		if updateChr == 'yes':
+			sqlFile.write('update MRK_Marker ' + \
+				'set chromosome = "%s" ' % (chromosome) + \
+				'where _Marker_key = %d\ngo\n' % (markerKey))
+
+			sqlFile.write('update MRK_Offset ' + \
+				'set offset = -1.0 ' + \
+				'where _Marker_key = %d\ngo\n' % (markerKey))
+
+		# update cytogenetic band, if it is provided
+		if band != "":
+			sqlFile.write('update MRK_Marker ' + \
+				'set cytogeneticOffset = "%s" ' % (band) + \
+				'where _Marker_key = %d\ngo\n' % (markerKey))
 
 #	end of "for line in inputFile.readlines():"
 
