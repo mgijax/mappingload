@@ -545,25 +545,25 @@ def createExperiments():
 			else:
 			  seqExptDict[r['_Expt_key']] = s[0]['maxKey']
 
+       	results = db.sql('select maxKey = max(_Expt_key) + 1 from MLD_Expts', 'auto')
+       	if results[0]['maxKey'] is None:
+               	exptKey = 1000
+       	else:
+               	exptKey = results[0]['maxKey']
+
+       	results = db.sql('select maxKey = max(_Accession_key) + 1 from ACC_Accession', 'auto')
+       	if results[0]['maxKey'] is None:
+               	accKey = 1000
+       	else:
+               	accKey = results[0]['maxKey']
+
+       	results = db.sql('select maxKey = maxNumericPart + 1 from ACC_AccessionMax ' + \
+		'where prefixPart = "%s"' % (mgiPrefix), 'auto')
+       	mgiKey = results[0]['maxKey']
+	
 	# if no experiment records exist....create them
 
 	else:
-        	results = db.sql('select maxKey = max(_Expt_key) + 1 from MLD_Expts', 'auto')
-        	if results[0]['maxKey'] is None:
-                	exptKey = 1000
-        	else:
-                	exptKey = results[0]['maxKey']
-
-        	results = db.sql('select maxKey = max(_Accession_key) + 1 from ACC_Accession', 'auto')
-        	if results[0]['maxKey'] is None:
-                	accKey = 1000
-        	else:
-                	accKey = results[0]['maxKey']
-
-        	results = db.sql('select maxKey = maxNumericPart + 1 from ACC_AccessionMax ' + \
-			'where prefixPart = "%s"' % (mgiPrefix), 'auto')
-        	mgiKey = results[0]['maxKey']
-	
 		for c in chromosomeList:
 			createExperiment(c)
 
