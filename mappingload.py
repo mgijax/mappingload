@@ -9,10 +9,9 @@
 #	MLD_Expts
 #	MLD_Marker
 #	MLD_Expt_Marker
+#	MLD_Notes
 #
-#	(Experiment Notes will be added manually by the Curator)
-#
-#	To update Marker Chromosome and Band Assignments (if chromosome in DB = UN):
+#	To update Marker Chromosome and Band Assignments (optional)
 #
 #	MRK_Marker
 #
@@ -32,6 +31,8 @@
 #		field 3: Update Marker Chromosome (yes/no)
 #		field 4: Band (optional)
 #		field 5: Assay Type
+#
+#	last line of file will be the experiment note (optional)
 #
 # Parameters:
 #	-S = database server
@@ -56,12 +57,13 @@
 #
 # Output:
 #
-#       4 BCP files:
+#       5 BCP files:
 #
 #       ACC_Accession.bcp               Accession records
 #       MLD_Expts.bcp                   master Experiment records
 #       MLD_Marker.bcp                  master Marker records for J:
 #       MLD_Expt_Marker.bcp             Marker records for each Experiment
+#       MLD_Notes.bcp             	master Experiment notes
 #
 #	1 SQL file:
 #		file of SQL commands for updating Marker chromosomes and bands
@@ -133,6 +135,7 @@ exptFile = ''		# file descriptor
 markerFile = ''		# file descriptor
 exptMarkerFile = ''	# file descriptor
 accFile = ''		# file descriptor
+noteFile = ''		# file descriptor
 sqlFile = ''		# file descriptor
 
 diagFileName = ''	# file name
@@ -143,6 +146,7 @@ exptFileName = ''	# file name
 markerFileName = ''	# file name
 exptMarkerFileName = ''	# file name
 accFileName = ''	# file name
+noteFileName = ''	# file name
 sqlFileName = ''	# file name
 
 mode = ''		# processing mode
@@ -229,8 +233,8 @@ def init():
 	'''
  
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
-	global exptFile, markerFile, exptMarkerFile, accFile, sqlFile
-	global exptFileName, markerFileName, exptMarkerFileName, accFileName, sqlFileName
+	global exptFile, markerFile, exptMarkerFile, accFile, noteFile, sqlFile
+	global exptFileName, markerFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
 	global mode, exptType, referenceKey
  
 	try:
@@ -294,6 +298,7 @@ def init():
 	markerFileName = tail + '.' + fdate + '.MLD_Marker.bcp'
 	exptMarkerFileName = tail + '.' + fdate + '.MLD_Expt_Marker.bcp'
 	accFileName = tail + '.' + fdate + '.ACC_Accession.bcp'
+	noteFileName = tail + '.' + fdate + '.MLD_Notes.bcp'
 	sqlFileName = tail + '.' + fdate + '.sql'
 
 	try:
@@ -330,6 +335,11 @@ def init():
 		accFile = open(accFileName, 'w')
 	except:
 		exit(1, 'Could not open file %s\n' % accFileName)
+		
+	try:
+		noteFile = open(noteFileName, 'w')
+	except:
+		exit(1, 'Could not open file %s\n' % noteFileName)
 		
 	try:
 		sqlFile = open(sqlFileName, 'w')
@@ -609,6 +619,7 @@ def processFile():
 	for line in inputFile.readlines():
 
 		error = 0
+		note = ''
 		lineNum = lineNum + 1
 
 		# Split the line into tokens
@@ -621,7 +632,9 @@ def processFile():
 			band = tokens[3]
 			assay = tokens[4]
 		except:
-			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
+			# if it's not a valid line, assume it's the note
+			note = line
+#			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
@@ -682,6 +695,19 @@ def processFile():
 
 #	end of "for line in inputFile.readlines():"
 
+	if len(note) > 0:
+
+		noteSeq = 1
+		
+		while len(note) > 255:
+			bcpWrite(noteFile, [referenceKey, noteSeq, note[:255], cdate, cdate])
+			newnote = note[255:]
+			note = newnote
+			noteSeq = noteSeq + 1
+
+		if len(note) > 0:
+			bcpWrite(noteFile, [referenceKey, noteSeq, note, cdate, cdate])
+
 def bcpWrite(fp, values):
 	'''
 	#
@@ -721,6 +747,7 @@ def bcpFiles():
 	markerFile.close()
 	exptMarkerFile.close()
 	accFile.close()
+	noteFile.close()
 	sqlFile.close()
 
 	cmd1 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
@@ -739,7 +766,11 @@ def bcpFiles():
 		% (passwordFileName, db.get_sqlDatabase(), \
 	   	'ACC_Accession', accFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
 
-	cmd5 = 'cat %s | isql -S%s -D%s -U%s -i%s' \
+	cmd5 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
+		% (passwordFileName, db.get_sqlDatabase(), \
+	   	'MLD_Notes', noteFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+
+	cmd6 = 'cat %s | isql -S%s -D%s -U%s -i%s' \
 		% (passwordFileName, db.get_sqlServer(), db.get_sqlDatabase(), db.get_sqlUser(), sqlFileName)
 
 	diagFile.write('%s\n' % cmd1)
@@ -747,6 +778,7 @@ def bcpFiles():
 	diagFile.write('%s\n' % cmd3)
 	diagFile.write('%s\n' % cmd4)
 	diagFile.write('%s\n' % cmd5)
+	diagFile.write('%s\n' % cmd6)
 
 	if DEBUG:
 		return
@@ -756,6 +788,7 @@ def bcpFiles():
 	os.system(cmd3)
 	os.system(cmd4)
 	os.system(cmd5)
+	os.system(cmd6)
 #	db.sql('dump transaction %s with truncate_only' % (db.get_sqlDatabase()), None, execute = not DEBUG)
 
 #
