@@ -635,7 +635,7 @@ def processFile():
 		else:
 			chrExptKey = exptDict[chromosome]
 
-		if markerKey == 0 or assaykey == 0 or chrExptKey == 0:
+		if markerKey == 0 or assayKey == 0 or chrExptKey == 0:
 			# set error flag to true
 			error = 1
 
