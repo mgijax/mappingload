@@ -610,6 +610,7 @@ def processFile():
 	'''
 
 	lineNum = 0
+	note = ''
 
 	# sequence number of marker in master marker list
 	seq1 = 1
@@ -619,7 +620,6 @@ def processFile():
 	for line in inputFile.readlines():
 
 		error = 0
-		note = ''
 		lineNum = lineNum + 1
 
 		# Split the line into tokens
@@ -635,6 +635,9 @@ def processFile():
 			# if it's not a valid line, assume it's the note
 			note = line
 #			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
+
+		if len(note) > 0:
+			continue
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
