@@ -15,7 +15,7 @@ source ${SCHEMADIR}/Configuration
 setenv INPUTFILE	specifictoyourload
 setenv MODE		preview|incremental|full
 setenv JNUM		J:
-setenv EXPERIMENTTYPE	"Text-Physical Mapping"
+setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
 setenv CREATEDBY	specifictoyourload
 
 setenv MAPPINGLOAD		/usr/local/mgi/dataload/mappingload
