@@ -20,7 +20,6 @@ setenv INPUTFILE	$3
 setenv MODE		$4
 
 setenv JNUM		78475
-setenv ASSAY		"assembly"
 setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
 
 setenv DBUTILITIESPATH		/usr/local/mgi/dbutils/mgidbutilities
@@ -36,7 +35,7 @@ date >>& $LOG
 set loaddir = `dirname $0`
 
 # load the Annotation File
-${loaddir}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -A\"${ASSAY}\" -E\"${EXPERIMENTTYPE}\" >>& $LOG
+${loaddir}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E\"${EXPERIMENTTYPE}\" >>& $LOG
 
 date >>& $LOG
 
