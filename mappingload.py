@@ -190,7 +190,6 @@ def showUsage():
 		'-M mode\n' + \
 		'-I input file\n' + \
 		'-R J# (####)\n' + \
-		'-A Assay Type (ex. "sequence analysis")\n' + \
 		'-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n' + \
 		'-C Created By\n'
 	exit(1, usage)
@@ -461,7 +460,6 @@ def verifyMarker(markerID, lineNum):
 	markerKey = None
 
 	if markerDict.has_key(markerID):
-		print str(markerDict[markerID])
 		[markerKey, markerSymbol] = string.split(markerDict[markerID], ':')
 		return(markerKey, markerSymbol)
 	else:
