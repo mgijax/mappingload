@@ -541,7 +541,8 @@ def createExperiments():
 		'where prefixPart = "%s"' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
-	results = db.sql('select _Expt_key, chromosome from MLD_Expts where _Refs_key = %d' % (referenceKey), 'auto')
+	results = db.sql('select _Expt_key, chromosome, tag from MLD_Expts ' + \
+		'where _Refs_key = %d order by tag' % (referenceKey), 'auto')
 
 	# experiment records exists
 
@@ -560,6 +561,8 @@ def createExperiments():
 			  seqExptDict[r['_Expt_key']] = 1
 			else:
 			  seqExptDict[r['_Expt_key']] = s[0]['maxKey']
+
+ 			exptTag = r['tag'] + 1
 
 	# if no experiment records exist....create them
 
