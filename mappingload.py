@@ -31,6 +31,7 @@
 #		field 3: Update Marker Chromosome (yes/no)
 #		field 4: Band (optional)
 #		field 5: Assay Type
+#		field 6: Description
 #
 #	last line of file will be the experiment note (optional)
 #
@@ -165,7 +166,6 @@ bcpdelim = "|"
 
 referenceKey = 0	# Reference Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
-description = ''	# MLD_Expt_Marker.description
 matrixData = 0		# MLD_Extt_Marker.matrixData
 
 cdate = mgi_utils.date('%m/%d/%Y')	# current date
@@ -641,6 +641,7 @@ def processFile():
 			updateChr = tokens[2]
 			band = tokens[3]
 			assay = tokens[4]
+			description = tokens[5]
 		except:
 			# if it's not a valid line, assume it's the note
 			note = line
