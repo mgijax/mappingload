@@ -438,6 +438,50 @@ def verifyChromosome(chromosome, lineNum):
 		errorFile.write('Invalid Chromosome (%d) %s\n' % (lineNum, chromosome))
 		return 0
 
+def verifyMarker(markerID, lineNum):
+	'''
+	# requires:
+	#	markerID - the Accession ID of the Marker
+	#	lineNum - the line number of the record from the input file
+	#
+	# effects:
+	#	verifies that:
+	#		the Marker exists either in the marker dictionary or the database
+	#	writes to the error file if the Marker is invalid
+	#	addes the marker id and key to the marker dictionary if the Marker is valid
+	#
+	# returns:
+	#	0 and '' if the Marker is invalid
+	#	Marker Key and Marker Symbol if the Marker is valid
+	#
+	'''
+
+	global markerDict
+
+	markerKey = None
+
+	if markerDict.has_key(markerID):
+		errorFile.write('Duplicate Mouse Marker (%d) %s\n' % (lineNum, markerID))
+		return(0, '')
+	else:
+		results = db.sql('select m._Marker_key, m.symbol ' + \
+			'from MRK_Marker m, MRK_Acc_View a ' + \
+			'where a.accID = "%s" ' % (markerID) + \
+			'and a._Object_key = m._Marker_key ' + \
+			'and m._Organism_key = 1', 'auto')
+		for r in results:
+			markerKey = r['_Marker_key']
+			markerSymbol = r['symbol']
+
+		if markerKey is None:
+			errorFile.write('Invalid Mouse Marker (%d) %s\n' % (lineNum, markerID))
+			markerKey = 0
+			markerSymbol = ''
+		else:
+			markerDict[markerID] = `markerKey` + ':' + markerSymbol
+
+	return(markerKey, markerSymbol)
+
 def loadDictionaries():
 	'''
 	# requires:
@@ -451,7 +495,7 @@ def loadDictionaries():
 
 	global chromosomeList, assayDict
 
-	results = db.sql('select chromosome from MRK_Chromosome where _Species_key = 1 ' + \
+	results = db.sql('select chromosome from MRK_Chromosome where _Organism_key = 1 ' + \
 		'and chromosome not in ("UN", "MT") order by sequenceNum', 'auto')
 	for r in results:
 		chromosomeList.append(r['chromosome'])
@@ -596,7 +640,7 @@ def processFile():
 			continue
 #			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
-		markerKey, markerSymbol = loadlib.verifyMarker(markerID, lineNum, errorFile)
+		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
 		error = not verifyChromosome(chromosome, lineNum)
 
