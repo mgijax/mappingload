@@ -206,6 +206,7 @@ def exit(status, message = None):
 	except:
 		pass
 
+	db.useOneConnection()
 	sys.exit(status)
  
 def init():
@@ -282,6 +283,7 @@ def init():
 
 	# Initialize db.py DBMS parameters
 	db.set_sqlLogin(user, password, server, database)
+	db.useOneConnection(1)
  
 	fdate = mgi_utils.date('%m%d%Y')	# current date
 	head, tail = os.path.split(inputFileName) 
