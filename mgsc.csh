@@ -25,6 +25,7 @@ setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
 setenv DBUTILITIESPATH		/usr/local/mgi/dbutils/mgidbutilities
 setenv DBUSER			mgd_dbo
 setenv DBPASSWORDFILE		${DBUTILITIESPATH}/.mgd_dbo_password
+setenv MAPPINGLOAD		/usr/local/mgi/dataload/mappingload
 
 cd `dirname $0`
 setenv LOG	$0.log
@@ -32,10 +33,8 @@ setenv LOG	$0.log
 echo 'MGSC V3 Assembly Mapping Load' > $LOG
 date >>& $LOG
 
-set loaddir = `dirname $0`
-
 # load the Annotation File
-${loaddir}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E\"${EXPERIMENTTYPE}\" >>& $LOG
+${MAPPINGLOAD}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E\"${EXPERIMENTTYPE}\" >>& $LOG
 
 date >>& $LOG
 
