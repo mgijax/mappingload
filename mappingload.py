@@ -155,6 +155,7 @@ markerDict = {}		# dictionary of marker accids and marker keys/symbols
 chromosomeList = []	# list of valid mouse chromosome
 exptDict = {}		# dictionary of chromosome/experiment key values
 seqExptDict = {}	# dictionary of experiment marker sequence values
+assayDict = {}		# dictionary of Assay Types
 
 logicalDBKey = 1
 mgiTypeKey = 4          # Experiment
@@ -399,16 +400,10 @@ def verifyAssay(assay):
 	#
 	'''
 
-	assayKey = 0
-
-	results = db.sql('select _Assay_Type_key from MLD_Assay_Types where description = "%s"' % (assay), 'auto')
-	for r in results:
-		assayKey = r['_Assay_Type_key']
-
-	if assayKey == 0:
+	if assayDict.has_key(assay):
+		return assayDict[assay]
+	else:
 		exit(1, 'Invalid Assay: %s\n' % (assay))
-
-	return(assayKey)
 
 def verifyReference(referenceID):
 	'''
@@ -460,7 +455,7 @@ def verifyMarker(markerID, lineNum):
 	else:
 		results = db.sql('select m._Marker_key, m.symbol ' + \
 			'from MRK_Marker m, MRK_Acc_View a ' + \
-			'where a.accID = "%s"' % (markerID) + \
+			'where a.accID = "%s" ' % (markerID) + \
 			'and a._Object_key = m._Marker_key ' + \
 			'and m._Species_key = 1', 'auto')
 		for r in results:
@@ -512,12 +507,16 @@ def loadDictionaries():
 	#	nothing
 	'''
 
-	global chromosomeList
+	global chromosomeList, assayDict
 
 	results = db.sql('select chromosome from MRK_Chromosome where _Species_key = 1 ' + \
 		'and chromosome not in ("UN", "MT") order by sequenceNum', 'auto')
 	for r in results:
 		chromosomeList.append(r['chromosome'])
+
+        results = db.sql('select * from MLD_Assay_Types', 'auto')
+	for r in results:
+		assayDict[r['description']] = r['_Assay_Type_key']
 
 def createExperiments():
 	'''
@@ -542,7 +541,11 @@ def createExperiments():
 	if len(results) > 0:
 		for r in results:
 			exptDict[r['chromosome']] = r['_Expt_key']
-			seqExptDict[r['_Expt_key']] = 1
+			s = db.sql('select maxKey = max(sequenceNum) + 1 from MLD_Expt_Marker where _Expt_key = %d' % (r['_Expt_key']), 'auto')
+			if s[0]['maxKey'] is None:
+			  seqExptDict[r['_Expt_key']] = 1
+			else:
+			  seqExptDict[r['_Expt_key']] = s[0]['maxKey']
 
 		if mode == 'full':
 			# delete the existing *details*.....
@@ -616,7 +619,11 @@ def processFile():
 	note = ''
 
 	# sequence number of marker in master marker list
-	seq1 = 1
+	results = db.sql('select maxKey = max(sequenceNum) + 1 from MLD_Marker where _Refs_key = %d' % (referenceKey), 'auto')
+	if results[0]['maxKey'] is None:
+	    seq1 = 1
+	else:
+	    seq1 = results[0]['maxKey']
 
 	# For each line in the input file
 
