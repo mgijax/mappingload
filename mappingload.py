@@ -170,6 +170,11 @@ userKey = 0		# User Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
 matrixData = 0		# MLD_Extt_Marker.matrixData
 
+exptKey = 1000
+accKey = 1000
+mgiKey = 1000
+exptTag = 1
+
 loaddate = loadlib.loaddate	# current date
 
 def showUsage():
@@ -518,6 +523,7 @@ def createExperiments():
 	'''
 
 	global exptDict, seqExptDict
+	global exptKey, accKey, mgiKey, exptTag
 
 	results = db.sql('select _Expt_key, chromosome from MLD_Expts where _Refs_key = %d' % (referenceKey), 'auto')
 
@@ -542,11 +548,6 @@ def createExperiments():
 	# if no experiment records exist....create them
 
 	else:
-		exptKey = 1000
-		accKey = 1000
-		mgiKey = 1000
-		exptTag = 1
-
         	results = db.sql('select maxKey = max(_Expt_key) + 1 from MLD_Expts', 'auto')
         	if results[0]['maxKey'] is None:
                 	exptKey = 1000
@@ -564,28 +565,33 @@ def createExperiments():
         	mgiKey = results[0]['maxKey']
 	
 		for c in chromosomeList:
+			createExperiment(c)
 
-			bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, c, loaddate, loaddate])
-			bcpWrite(accFile, [accKey, \
-				mgiPrefix + str(mgiKey), \
-				mgiPrefix, \
-				mgiKey, \
-				logicalDBKey, \
-				exptKey, \
-				mgiTypeKey, \
-				0, 1, \
-				userKey, userKey, loaddate, loaddate])
-
-			exptDict[c] = exptKey
-			seqExptDict[exptKey] = 1
-			exptKey = exptKey + 1
-			exptTag = exptTag + 1
-        		accKey = accKey + 1
-        		mgiKey = mgiKey + 1
-		
 		# Update the AccessionMax value
 
 		db.sql('exec ACC_setMax %d' % (exptTag), None, execute = not DEBUG)
+
+def createExperiment(chromosome):
+
+	global exptKey, accKey, mgiKey, exptTag
+
+	bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
+	bcpWrite(accFile, [accKey, \
+			mgiPrefix + str(mgiKey), \
+			mgiPrefix, \
+			mgiKey, \
+			logicalDBKey, \
+			exptKey, \
+			mgiTypeKey, \
+			0, 1, \
+			userKey, userKey, loaddate, loaddate])
+
+	exptDict[chromosome] = exptKey
+	seqExptDict[exptKey] = 1
+	exptKey = exptKey + 1
+	exptTag = exptTag + 1
+        accKey = accKey + 1
+        mgiKey = mgiKey + 1
 
 def processFile():
 	'''
@@ -644,6 +650,10 @@ def processFile():
 		error = not verifyChromosome(chromosome, lineNum)
 
 		# determine experiment key for this chromosome
+		# if you can't find it, try to create it
+
+		if not exptDict.has_key(chromosome):
+			createExperiment(chromosome)
 
 		if not exptDict.has_key(chromosome):
 			errorFile.write('Cannot Find Experiment Key For Chromosome (%d): %s\n' % (lineNum, chromosome))
