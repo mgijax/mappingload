@@ -634,10 +634,8 @@ def processFile():
 		except:
 			# if it's not a valid line, assume it's the note
 			note = line
-#			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
-
-		if len(note) > 0:
 			continue
+#			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
