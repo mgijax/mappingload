@@ -14,7 +14,7 @@ source ${SCHEMADIR}/Configuration
 
 setenv INPUTFILE	specifictoyourload
 setenv MODE		preview|incremental|full
-setenv JNUM		specifictoyourload
+setenv JNUM		J:
 setenv EXPERIMENTTYPE	"Text-Physical Mapping"
 setenv CREATEDBY	specifictoyourload
 

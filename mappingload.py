@@ -42,8 +42,9 @@
 #	-P = password file
 #	-M = mode (incremental, full, preview)
 #	-I = input file of mapping data
-#	-R = Reference (J: in format #####)
+#	-R = Reference (J: in format J:#####)
 #	-E = Experiment Type ("TEXT")
+#	-C = Created By
 #
 #	processing modes:
 #		incremental - append the data to the existing Experiments (if they exist)
@@ -122,7 +123,7 @@ import getopt
 import regsub
 import db
 import mgi_utils
-import accessionlib
+import loadlib
 
 #globals
 
@@ -165,10 +166,11 @@ exptType = "TEXT"
 bcpdelim = "|"
 
 referenceKey = 0	# Reference Key
+userKey = 0		# User Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
 matrixData = 0		# MLD_Extt_Marker.matrixData
 
-cdate = mgi_utils.date('%m/%d/%Y')	# current date
+loaddate = loadlib.loaddate	# current date
 
 def showUsage():
 	'''
@@ -189,7 +191,8 @@ def showUsage():
 		'-I input file\n' + \
 		'-R J# (####)\n' + \
 		'-A Assay Type (ex. "sequence analysis")\n' + \
-		'-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n'
+		'-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n' + \
+		'-C Created By\n'
 	exit(1, usage)
  
 def exit(status, message = None):
@@ -236,10 +239,10 @@ def init():
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
 	global exptFile, markerFile, exptMarkerFile, accFile, noteFile, sqlFile
 	global exptFileName, markerFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
-	global mode, exptType, referenceKey
+	global mode, exptType, referenceKey, userKey
  
 	try:
-		optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:')
+		optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
 	except:
 		showUsage()
  
@@ -254,6 +257,7 @@ def init():
 	password = ''
 	inputFileName = ''
 	jnum = ''
+	createdBy = ''
  
 	for opt in optlist:
                 if opt[0] == '-S':
@@ -272,6 +276,8 @@ def init():
                         jnum = opt[1]
                 elif opt[0] == '-E':
                         exptType = regsub.gsub('"', '', opt[1])
+                elif opt[0] == '-C':
+                        createdBy = opt[1]
                 else:
                         showUsage()
 
@@ -284,7 +290,8 @@ def init():
 	   mode == '' or \
 	   inputFileName == '' or \
 	   jnum == '' or \
-	   exptType == '':
+	   exptType == '' or \
+	   createdBy == '':
 		showUsage()
 
 	# Initialize db.py DBMS parameters
@@ -361,7 +368,8 @@ def init():
 
 	errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
 
-	referenceKey = verifyReference(jnum)
+	referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
+	userKey = loadlib.verifyUser(createdBy, 0, errorFile)
 
 def verifyMode():
 	'''
@@ -404,72 +412,6 @@ def verifyAssay(assay):
 		return assayDict[assay]
 	else:
 		exit(1, 'Invalid Assay: %s\n' % (assay))
-
-def verifyReference(referenceID):
-	'''
-	# requires:
-	#	referenceID - the Accession ID of the Reference (J:)
-	#
-	# effects:
-	#	verifies that the Reference exists by checking the database
-	#	writes to the error file if the Reference is invalid
-	#	initializes global referenceKey
-	#
-	# returns:
-	#	Reference key if found
-	#
-	'''
-
-	referenceKey = accessionlib.get_Object_key('J:' + referenceID, 'Reference')
-
-	if referenceKey is None:
-		exit(1, 'Invalid Reference: %s\n' % (referenceID))
-
-	return(referenceKey)
-
-def verifyMarker(markerID, lineNum):
-	'''
-	# requires:
-	#	markerID - the Accession ID of the Marker
-	#	lineNum - the line number of the record from the input file
-	#
-	# effects:
-	#	verifies that:
-	#		the Marker exists either in the marker dictionary or the database
-	#	writes to the error file if the Marker is invalid
-	#	addes the marker id and key to the marker dictionary if the Marker is valid
-	#
-	# returns:
-	#	0 and '' if the Marker is invalid
-	#	Marker Key and Marker Symbol if the Marker is valid
-	#
-	'''
-
-	global markerDict
-
-	markerKey = None
-
-	if markerDict.has_key(markerID):
-		errorFile.write('Duplicate Mouse Marker (%d) %s\n' % (lineNum, markerID))
-		return(0, '')
-	else:
-		results = db.sql('select m._Marker_key, m.symbol ' + \
-			'from MRK_Marker m, MRK_Acc_View a ' + \
-			'where a.accID = "%s" ' % (markerID) + \
-			'and a._Object_key = m._Marker_key ' + \
-			'and m._Species_key = 1', 'auto')
-		for r in results:
-			markerKey = r['_Marker_key']
-			markerSymbol = r['symbol']
-
-		if markerKey is None:
-			errorFile.write('Invalid Mouse Marker (%d) %s\n' % (lineNum, markerID))
-			markerKey = 0
-			markerSymbol = ''
-		else:
-			markerDict[markerID] = `markerKey` + ':' + markerSymbol
-
-	return(markerKey, markerSymbol)
 
 def verifyChromosome(chromosome, lineNum):
 	'''
@@ -580,7 +522,7 @@ def createExperiments():
 	
 		for c in chromosomeList:
 
-			bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, c, cdate, cdate])
+			bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, c, loaddate, loaddate])
 			bcpWrite(accFile, [accKey, \
 				mgiPrefix + str(mgiKey), \
 				mgiPrefix, \
@@ -589,7 +531,7 @@ def createExperiments():
 				exptKey, \
 				mgiTypeKey, \
 				0, 1, \
-				cdate, cdate, cdate])
+				userKey, userKey, loaddate, loaddate])
 
 			exptDict[c] = exptKey
 			seqExptDict[exptKey] = 1
@@ -625,6 +567,12 @@ def processFile():
 	else:
 	    seq1 = results[0]['maxKey']
 
+       	results = db.sql('select maxKey = max(_RefMarker_key) + 1 from MLD_Marker', 'auto')
+       	if results[0]['maxKey'] is None:
+            mldmarkerKey = 1000
+       	else:
+            mldmarkerKey = results[0]['maxKey']
+
 	# For each line in the input file
 
 	for line in inputFile.readlines():
@@ -648,7 +596,7 @@ def processFile():
 			continue
 #			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
-		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
+		markerKey, markerSymbol = loadlib.verifyMarker(markerID, lineNum, errorFile)
 		assayKey = verifyAssay(assay)
 		error = not verifyChromosome(chromosome, lineNum)
 
@@ -671,7 +619,8 @@ def processFile():
 		# if no errors, process
 
 		# add marker to master marker file
-		bcpWrite(markerFile, [referenceKey, markerKey, seq1, cdate, cdate])
+		bcpWrite(markerFile, [mldmarkerKey, referenceKey, markerKey, seq1, userKey, userKey, loaddate, loaddate])
+		mldmarkerKey = mldmarkerKey + 1
 		seq1 = seq1 + 1
 
 		# add marker to experiment marker file
@@ -684,7 +633,7 @@ def processFile():
 			markerSymbol, \
 			description, \
 			matrixData, \
-			cdate, cdate])
+			loaddate, loaddate])
 
 		# increment marker sequence number for the experiment
 		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
@@ -712,13 +661,13 @@ def processFile():
 		noteSeq = 1
 		
 		while len(note) > 255:
-			bcpWrite(noteFile, [referenceKey, noteSeq, note[:255], cdate, cdate])
+			bcpWrite(noteFile, [referenceKey, noteSeq, note[:255], loaddate, loaddate])
 			newnote = note[255:]
 			note = newnote
 			noteSeq = noteSeq + 1
 
 		if len(note) > 0:
-			bcpWrite(noteFile, [referenceKey, noteSeq, note, cdate, cdate])
+			bcpWrite(noteFile, [referenceKey, noteSeq, note, loaddate, loaddate])
 
 def bcpWrite(fp, values):
 	'''
