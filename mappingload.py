@@ -461,8 +461,9 @@ def verifyMarker(markerID, lineNum):
 	markerKey = None
 
 	if markerDict.has_key(markerID):
-		errorFile.write('Duplicate Mouse Marker (%d) %s\n' % (lineNum, markerID))
-		return(0, '')
+		print str(markerDict[markerID])
+		[markerKey, markerSymbol] = string.split(markerDict[markerID], ':')
+		return(markerKey, markerSymbol)
 	else:
 		results = db.sql('select m._Marker_key, m.symbol ' + \
 			'from MRK_Marker m, MRK_Acc_View a ' + \
@@ -686,17 +687,17 @@ def processFile():
 		if updateChr == 'yes':
 			sqlFile.write('update MRK_Marker ' + \
 				'set chromosome = "%s" ' % (chromosome) + \
-				'where _Marker_key = %d\ngo\n' % (markerKey))
+				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 			sqlFile.write('update MRK_Offset ' + \
 				'set offset = -1.0 ' + \
-				'where _Marker_key = %d\ngo\n' % (markerKey))
+				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 		# update cytogenetic band, if it is provided
 		if band != "":
 			sqlFile.write('update MRK_Marker ' + \
 				'set cytogeneticOffset = "%s" ' % (band) + \
-				'where _Marker_key = %d\ngo\n' % (markerKey))
+				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 #	end of "for line in inputFile.readlines():"
 
