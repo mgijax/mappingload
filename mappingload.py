@@ -18,7 +18,7 @@
 #
 # Assumes:
 #
-#	That no one else is adding Mapping records to the database.
+#	That no one else is adding Mapping or Accession IDs records to the database.
 #
 # Side Effects:
 #
@@ -154,6 +154,9 @@ bcpdelim = "|"
 
 assayKey = 0		# Assay Key
 referenceKey = 0	# Reference Key
+alleleKey = ''		# MLD_Expt_Marker._Allele_key
+description = ''	# MLD_Expt_Marker.description
+matrixData = 0		# MLD_Extt_Marker.matrixData
 
 cdate = mgi_utils.date('%m/%d/%Y')	# current date
 
@@ -380,7 +383,6 @@ def verifyAssay(assay):
 	#	initializes global assayKey
 	#
 	# returns:
-	#	0 if Assay key is not found
 	#	Assay key if found
 	#
 	'''
@@ -409,7 +411,6 @@ def verifyReference(referenceID):
 	#	initializes global referenceKey
 	#
 	# returns:
-	#	0 if Reference key is not found
 	#	Reference key if found
 	#
 	'''
@@ -434,8 +435,8 @@ def verifyMarker(markerID, lineNum):
 	#	addes the marker id and key to the marker dictionary if the Marker is valid
 	#
 	# returns:
-	#	0 if the Marker is invalid
-	#	Marker Key if the Marker is valid
+	#	0 and '' if the Marker is invalid
+	#	Marker Key and Marker Symbol if the Marker is valid
 	#
 	'''
 
@@ -493,8 +494,7 @@ def loadDictionaries():
 	# requires:
 	#
 	# effects:
-	#	loads global dictionaries/lists: chromosomeList
-	#	for quicker lookup
+	#	loads global dictionaries/lists: chromosomeList for lookup
 	#
 	# returns:
 	#	nothing
@@ -512,7 +512,7 @@ def createExperiments():
 	# requires:
 	#
 	# effects:
-	#	creates bcp entries for"
+	#	creates bcp entries for:
 	#		Master Experiment table
 	#		Accession table
 	#
@@ -648,7 +648,17 @@ def processFile():
 		seq1 = seq1 + 1
 
 		# add marker to experiment marker file
-		bcpWrite(exptMarkerFile, [chrExptKey, markerKey, '', assayKey, seqExptDict[chrExptKey], markerSymbol, '', 0, cdate, cdate])
+		bcpWrite(exptMarkerFile, \
+			[chrExptKey, \
+			markerKey, \
+			alleleKey, \
+			assayKey, \
+			seqExptDict[chrExptKey], \
+			markerSymbol, \
+			description, \
+			matrixData, \
+			cdate, cdate])
+
 		# increment marker sequence number for the experiment
 		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
 
@@ -676,8 +686,8 @@ def bcpWrite(fp, values):
 	#
 	'''
 
+	# convert all members of values to strings
 	strvalues = []
-
 	for v in values:
 		strvalues.append(str(v))
 
@@ -730,11 +740,11 @@ def bcpFiles():
 		return
 
 	os.system(cmd1)
-#	db.sql('dump transaction %s with truncate_only' % (db.get_sqlDatabase()), None)
 	os.system(cmd2)
 	os.system(cmd3)
 	os.system(cmd4)
 	os.system(cmd5)
+#	db.sql('dump transaction %s with truncate_only' % (db.get_sqlDatabase()), None, execute = not DEBUG)
 
 #
 # Main
