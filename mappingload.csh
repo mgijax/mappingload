@@ -24,7 +24,7 @@ setenv LOG	$0.log
 
 date >>& $LOG
 
-${MAPPINGLOAD}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E\"${EXPERIMENTTYPE}\" >>& $LOG
+${MAPPINGLOAD}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E"${EXPERIMENTTYPE}" >>& $LOG
 
 date >>& $LOG
 
