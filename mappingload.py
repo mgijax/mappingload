@@ -458,8 +458,11 @@ def verifyMarker(markerID, lineNum):
 		errorFile.write('Duplicate Mouse Marker (%d) %s\n' % (lineNum, markerID))
 		return(0, '')
 	else:
-		results = db.sql('select _Marker_key, symbol ' + \
-			'from MRK_Mouse_View where mgiID = "%s"' % (markerID), 'auto')
+		results = db.sql('select m._Marker_key, m.symbol ' + \
+			'from MRK_Marker m, MRK_Acc_View a ' + \
+			'where a.accID = "%s"' % (markerID) + \
+			'and a._Object_key = m._Marker_key ' + \
+			'and m._Species_key = 1', 'auto')
 		for r in results:
 			markerKey = r['_Marker_key']
 			markerSymbol = r['symbol']
