@@ -16,6 +16,7 @@ setenv INPUTFILE	specifictoyourload
 setenv MODE		preview|incremental|full
 setenv JNUM		specifictoyourload
 setenv EXPERIMENTTYPE	"Text-Physical Mapping"
+setenv CREATEDBY	specifictoyourload
 
 setenv MAPPINGLOAD		/usr/local/mgi/dataload/mappingload
 
@@ -24,7 +25,7 @@ setenv LOG	$0.log
 
 date >>& $LOG
 
-${MAPPINGLOAD}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E"${EXPERIMENTTYPE}" >>& $LOG
+${MAPPINGLOAD}/mappingload.py -S${DBSERVER} -D${DBNAME} -U${DBUSER} -P${DBPASSWORDFILE} -M${MODE} -I${INPUTFILE} -R${JNUM} -E"${EXPERIMENTTYPE}" -C${CREATEDBY} >>& $LOG
 
 date >>& $LOG
 
