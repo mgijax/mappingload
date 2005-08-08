@@ -691,23 +691,26 @@ def processFile():
 			matrixData, \
 			loaddate, loaddate])
 
+		# update modification date of experiment
+		sqlFile.write('update MLD_Expts set modification_date = getdate() where _Expt_key = %s' % (chrExptKey))
+
 		# increment marker sequence number for the experiment
 		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
 
 		# update marker's chromosome...
 		if updateChr == 'yes':
 			sqlFile.write('update MRK_Marker ' + \
-				'set chromosome = "%s" ' % (chromosome) + \
+				'set modification_date = getdate(), chromosome = "%s" ' % (chromosome) + \
 				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 			sqlFile.write('update MRK_Offset ' + \
-				'set offset = -1.0 ' + \
+				'set modification_date = getdate(), offset = -1.0 ' + \
 				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 		# update cytogenetic band, if it is provided
 		if band != "":
 			sqlFile.write('update MRK_Marker ' + \
-				'set cytogeneticOffset = "%s" ' % (band) + \
+				'set modification_date = getdate(), cytogeneticOffset = "%s" ' % (band) + \
 				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 #	end of "for line in inputFile.readlines():"
