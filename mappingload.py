@@ -692,7 +692,7 @@ def processFile():
 			loaddate, loaddate])
 
 		# update modification date of experiment
-		sqlFile.write('update MLD_Expts set modification_date = getdate() where _Expt_key = %s' % (chrExptKey))
+		sqlFile.write('update MLD_Expts set modification_date = getdate() where _Expt_key = %s\ngo\n' % (chrExptKey))
 
 		# increment marker sequence number for the experiment
 		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
