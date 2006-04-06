@@ -120,7 +120,7 @@ import sys
 import os
 import string
 import getopt
-import regsub
+import re
 import db
 import mgi_utils
 import loadlib
@@ -279,7 +279,7 @@ def init():
                 elif opt[0] == '-R':
                         jnum = opt[1]
                 elif opt[0] == '-E':
-                        exptType = regsub.gsub('"', '', opt[1])
+                        exptType = re.sub('"', '', opt[1])
                 elif opt[0] == '-C':
                         createdBy = opt[1]
                 else:
