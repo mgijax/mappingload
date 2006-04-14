@@ -1,4 +1,11 @@
-TAG: mappingload-3-1-0-7
+TAG: mappingload-3-1-0-8
+DATE: 04/14/2006
+STAFF: lec
+RELEASE: A
+CHANGES: 
+1) convert from regsub.sub() to re.sub()
+
+TAG: mappingload-3-1-0-6
 DATE: 09/27/2005
 STAFF: lec
 RELEASE: A
