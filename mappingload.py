@@ -7,7 +7,6 @@
 #	To load new mapping records into Mapping structures:
 #
 #	MLD_Expts
-#	MLD_Marker
 #	MLD_Expt_Marker
 #	MLD_Notes
 #
@@ -59,11 +58,10 @@
 #
 # Output:
 #
-#       5 BCP files:
+#       4 BCP files:
 #
 #       ACC_Accession.bcp               Accession records
 #       MLD_Expts.bcp                   master Experiment records
-#       MLD_Marker.bcp                  master Marker records for J:
 #       MLD_Expt_Marker.bcp             Marker records for each Experiment
 #       MLD_Notes.bcp             	master Experiment notes
 #
@@ -98,11 +96,9 @@
 #	3.  Verify the Chromosome is valid.
 #	    If the verification fails, report the error and skip the record.
 #
-#	5.  Determine the Experiment key for the Chromosome.
+#	4.  Determine the Experiment key for the Chromosome.
 #
-#	5.  Create MLD_Marker record for the Marker.
-#
-#	6.  Create MLD_Expt_Marker record for the Marker.
+#	5.  Create MLD_Expt_Marker record for the Marker.
 #
 # History:
 #
@@ -134,7 +130,6 @@ diagFile = ''		# file descriptor
 errorFile = ''		# file descriptor
 
 exptFile = ''		# file descriptor
-markerFile = ''		# file descriptor
 exptMarkerFile = ''	# file descriptor
 accFile = ''		# file descriptor
 noteFile = ''		# file descriptor
@@ -145,7 +140,6 @@ errorFileName = ''	# file name
 passwordFileName = ''	# file name
 
 exptFileName = ''	# file name
-markerFileName = ''	# file name
 exptMarkerFileName = ''	# file name
 accFileName = ''	# file name
 noteFileName = ''	# file name
@@ -241,8 +235,8 @@ def init():
 	'''
  
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
-	global exptFile, markerFile, exptMarkerFile, accFile, noteFile, sqlFile
-	global exptFileName, markerFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
+	global exptFile, exptMarkerFile, accFile, noteFile, sqlFile
+	global exptFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
 	global mode, exptType, referenceKey, userKey
  
 	try:
@@ -307,7 +301,6 @@ def init():
 	diagFileName = tail + '.' + fdate + '.diagnostics'
 	errorFileName = tail + '.' + fdate + '.error'
 	exptFileName = tail + '.' + fdate + '.MLD_Expts.bcp'
-	markerFileName = tail + '.' + fdate + '.MLD_Marker.bcp'
 	exptMarkerFileName = tail + '.' + fdate + '.MLD_Expt_Marker.bcp'
 	accFileName = tail + '.' + fdate + '.ACC_Accession.bcp'
 	noteFileName = tail + '.' + fdate + '.MLD_Notes.bcp'
@@ -332,11 +325,6 @@ def init():
 		exptFile = open(exptFileName, 'w')
 	except:
 		exit(1, 'Could not open file %s\n' % exptFileName)
-		
-	try:
-		markerFile = open(markerFileName, 'w')
-	except:
-		exit(1, 'Could not open file %s\n' % markerFileName)
 		
 	try:
 		exptMarkerFile = open(exptMarkerFileName, 'w')
@@ -549,7 +537,6 @@ def createExperiments():
 	if len(results) > 0:
 		if mode == 'full':
 			# delete the existing *details*.....
-			db.sql('delete from MLD_Marker where _Refs_key = %d' % (referenceKey), 'auto', execute = not DEBUG)
 			db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
 				' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
 				'auto', execute = not DEBUG)
@@ -612,19 +599,6 @@ def processFile():
 	lineNum = 0
 	note = ''
 
-	# sequence number of marker in master marker list
-	results = db.sql('select maxKey = max(sequenceNum) + 1 from MLD_Marker where _Refs_key = %d' % (referenceKey), 'auto')
-	if results[0]['maxKey'] is None:
-	    seq1 = 1
-	else:
-	    seq1 = results[0]['maxKey']
-
-       	results = db.sql('select maxKey = max(_RefMarker_key) + 1 from MLD_Marker', 'auto')
-       	if results[0]['maxKey'] is None:
-            mldmarkerKey = 1000
-       	else:
-            mldmarkerKey = results[0]['maxKey']
-
 	# For each line in the input file
 
 	for line in inputFile.readlines():
@@ -673,11 +647,6 @@ def processFile():
 			continue
 
 		# if no errors, process
-
-		# add marker to master marker file
-		bcpWrite(markerFile, [mldmarkerKey, referenceKey, markerKey, seq1, userKey, userKey, loaddate, loaddate])
-		mldmarkerKey = mldmarkerKey + 1
-		seq1 = seq1 + 1
 
 		# add marker to experiment marker file
 		bcpWrite(exptMarkerFile, \
@@ -764,7 +733,6 @@ def bcpFiles():
 	'''
 
 	exptFile.close()
-	markerFile.close()
 	exptMarkerFile.close()
 	accFile.close()
 	noteFile.close()
@@ -776,21 +744,17 @@ def bcpFiles():
 
 	cmd2 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
 		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'MLD_Marker', markerFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+	   	'MLD_Expt_Marker', exptMarkerFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
 
 	cmd3 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
 		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'MLD_Expt_Marker', exptMarkerFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+	   	'ACC_Accession', accFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
 
 	cmd4 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
 		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'ACC_Accession', accFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
-
-	cmd5 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-		% (passwordFileName, db.get_sqlDatabase(), \
 	   	'MLD_Notes', noteFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
 
-	cmd6 = 'cat %s | isql -S%s -D%s -U%s -i%s' \
+	cmd5 = 'cat %s | isql -S%s -D%s -U%s -i%s' \
 		% (passwordFileName, db.get_sqlServer(), db.get_sqlDatabase(), db.get_sqlUser(), sqlFileName)
 
 	diagFile.write('%s\n' % cmd1)
@@ -798,7 +762,6 @@ def bcpFiles():
 	diagFile.write('%s\n' % cmd3)
 	diagFile.write('%s\n' % cmd4)
 	diagFile.write('%s\n' % cmd5)
-	diagFile.write('%s\n' % cmd6)
 
 	if DEBUG:
 		return
