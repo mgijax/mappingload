@@ -771,7 +771,6 @@ def bcpFiles():
 	os.system(cmd3)
 	os.system(cmd4)
 	os.system(cmd5)
-	os.system(cmd6)
 #	db.sql('dump transaction %s with truncate_only' % (db.get_sqlDatabase()), None, execute = not DEBUG)
 
 #
