@@ -1,0 +1,24 @@
+#!/bin/csh -f
+
+#
+# default configuration file
+#
+
+source ./Configuration
+
+setenv NOMENDATADIR 	?
+setenv NOMENDATAFILE 	${NOMENDATADIR}/?
+setenv NOMENLOG 	${NOMENDATAFILE}.log
+setenv NOMENREFERENCE 	J:
+setenv NOMENMODE	preview
+setenv NOMENBROADCAST	no
+
+setenv MAPPINGASSAYTYPE	assembly
+setenv MAPPINGDATADIR   ${NOMENDATADIR}
+setenv MAPPINGDATAFILE  ${NOMENDATAFILE}.mapping
+setenv MAPPINGLOG	${MAPPINGDATAFILE}.log
+setenv MAPPINGMODE	preview
+setenv JNUM		${NOMENREFERENCE}
+setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
+setenv CREATEDBY	yz
+

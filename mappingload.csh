@@ -6,7 +6,9 @@
 # Usage:  mappingload.csh configFile
 #
 
-cd `dirname $0` && source $1
+setenv CONFIGFILE $1
+
+source ${CONFIGFILE}
 
 setenv MAPPINGLOAD	${DATALOAD}/mappingload/mappingload.py
 
