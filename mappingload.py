@@ -505,7 +505,6 @@ def loadDictionaries():
 	    if chromosome not in inputChrList:
 		inputChrList.append(chromosome)
         inputFile.close()
-	inputChrList.sort()
 
 def createExperiments():
 	'''
