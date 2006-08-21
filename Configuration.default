@@ -12,3 +12,5 @@ endif
 
 source ${MGICONFIG}/master.config.csh
 
+setenv MAPPINGLOAD      ${DATALOAD}/mappingload/mappingload.py
+
