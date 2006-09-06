@@ -139,6 +139,7 @@ diagFileName = ''	# file name
 errorFileName = ''	# file name
 passwordFileName = ''	# file name
 
+inputFileName = ''	# file name
 exptFileName = ''	# file name
 exptMarkerFileName = ''	# file name
 accFileName = ''	# file name
@@ -149,6 +150,7 @@ mode = ''		# processing mode
 
 markerDict = {}		# dictionary of marker accids and marker keys/symbols
 chromosomeList = []	# list of valid mouse chromosome
+inputChrList = []	# list of unique chromosomes from input file
 exptDict = {}		# dictionary of chromosome/experiment key values
 seqExptDict = {}	# dictionary of experiment marker sequence values
 assayDict = {}		# dictionary of Assay Types
@@ -236,7 +238,7 @@ def init():
  
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
 	global exptFile, exptMarkerFile, accFile, noteFile, sqlFile
-	global exptFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
+	global inputFileName, exptFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
 	global mode, exptType, referenceKey, userKey
  
 	try:
@@ -485,7 +487,7 @@ def loadDictionaries():
 	#	nothing
 	'''
 
-	global chromosomeList, assayDict
+	global chromosomeList, assayDict, inputChrList
 
 	results = db.sql('select chromosome from MRK_Chromosome where _Organism_key = 1 ' + \
 		'and chromosome not in ("UN", "MT") order by sequenceNum', 'auto')
@@ -495,6 +497,14 @@ def loadDictionaries():
         results = db.sql('select * from MLD_Assay_Types', 'auto')
 	for r in results:
 		assayDict[r['description']] = r['_Assay_Type_key']
+
+	# create unique list of chromosomes from input file
+	for line in inputFile.readlines():
+	    tokens = string.split(line[:-1], '\t')
+	    chromosome = tokens[1]
+	    if chromosome not in inputChrList:
+		inputChrList.append(chromosome)
+        inputFile.close()
 
 def createExperiments():
 	'''
@@ -555,7 +565,8 @@ def createExperiments():
 
 	else:
 		for c in chromosomeList:
-			createExperiment(c)
+			if c in inputChrList:
+			    createExperiment(c)
 
 		# Update the AccessionMax value
 
@@ -601,6 +612,7 @@ def processFile():
 
 	# For each line in the input file
 
+	inputFile = open(inputFileName, 'r')
 	for line in inputFile.readlines():
 
 		error = 0

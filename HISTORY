@@ -1,34 +1,47 @@
+TAG: mappingload-3-5-1-1
+DATE: 09/06/2006
+STAFF: lec
+CHANGES: 
+1) build 36; merge
+
+TAG: mappingload-build36-2
+DATE: 07/28/2006
+STAFF: lec
+CHANGES: 
+1) build 36
+
+TAG: mappingload-build36-1
+DATE: 07/27/2006
+STAFF: lec
+CHANGES: 
+1) build 36
+
 TAG: mappingload-3-5-0-2
 DATE: 05/02/2006
 STAFF: lec
-RELEASE: A
 CHANGES: 
 1) MGI 3.5; remove MLD_Marker
 
 TAG: mappingload-3-5-0-1
 DATE: 04/20/2006
 STAFF: lec
-RELEASE: A
 CHANGES: 
 1) MGI 3.5; remove MLD_Marker
 
 TAG: mappingload-3-1-0-8
 DATE: 04/14/2006
 STAFF: lec
-RELEASE: A
 CHANGES: 
 1) convert from regsub.sub() to re.sub()
 
 TAG: mappingload-3-1-0-6
 DATE: 09/27/2005
 STAFF: lec
-RELEASE: A
 CHANGES: fix update MLD_Expts modification date
 
 TAG: mappingload-3-1-0-6
 DATE: 08/08/2005
 STAFF: lec
-RELEASE: A
 CHANGES: update MLD_Expts modification date
 
 TAG: mappingload-3-1-0-5
@@ -37,72 +50,60 @@ TAG: mappingload-3-1-0-3
 TAG: mappingload-3-1-0-2
 DATE: 02/07/2005
 STAFF: lec
-RELEASE: A
 CHANGES: add a way to add a new chromosome experiment incrementally
 
 TAG: mappingload-3-1-0-1
 DATE: 02/01/2005
 STAFF: lec
-RELEASE: A
 CHANGES: fixed bug in mappingload.py
 
 TAG: mappingload-2-0-2
 DATE: 06/21/2004
 STAFF: lec
-RELEASE: A
 CHANGES: remove duplicate check
 
 TAG: mappingload-2-0-1
 DATE: 05/13/2004
 STAFF: lec
-RELEASE: A
 CHANGES: JSAM;mapping.csh
 
 TAG: mappingload-2-0-0
 DATE: 04/01/2004
 STAFF: lec
-RELEASE: A
 CHANGES: JSAM
 
 TAG: mappingload-1-0-6
 DATE: 03/22/2004
 STAFF: lec
-RELEASE: A
 CHANGES: added "Description"
 
 TAG: mappingload-1-0-5
 DATE: 06/12/2003
 STAFF: lec
-RELEASE: A
 CHANGES: TR 4010
 
 TAG: mappingload-1-0-4
 DATE: 02/10/2003
 STAFF: lec
-RELEASE: A
 CHANGES: TR 3928/Fantom2 load
 
 TAG: mappingload-1-0-3
 DATE: 02/03/2003
 STAFF: lec
-RELEASE: A
 CHANGES: TR 3928/Fantom2 load
 
 TAG: mappingload-1-0-2
 DATE: 10/21/2002
 STAFF: lec
-RELEASE: A
 CHANGES: added db.useOneConnection()
 
 TAG: mappingload-1-0-1
 DATE: 09/06/2002
 STAFF: lec
-RELEASE: A
 CHANGES: new
 
 TAG: mappingload-1-0-0
 DATE: 08/30/2002
 STAFF: lec
-RELEASE: A
 CHANGES: new
 

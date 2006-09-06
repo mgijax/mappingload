@@ -10,7 +10,7 @@ setenv CONFIGFILE $1
 
 source ${CONFIGFILE}
 
-setenv MAPPINGLOAD	${DATALOAD}/mappingload/mappingload.py
+setenv MAPPINGLOAD      ${DATALOAD}/mappingload/mappingload.py
 
 cd ${MAPPINGDATADIR}
 
