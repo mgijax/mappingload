@@ -162,7 +162,7 @@ exptType = "TEXT"
 bcpdelim = "|"
 
 referenceKey = 0	# Reference Key
-userKey = 0		# User Key
+createdByKey = 0	# Created By Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
 matrixData = 0		# MLD_Extt_Marker.matrixData
 
@@ -239,7 +239,7 @@ def init():
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
 	global exptFile, exptMarkerFile, accFile, noteFile, sqlFile
 	global inputFileName, exptFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
-	global mode, exptType, referenceKey, userKey
+	global mode, exptType, referenceKey, createdByKey
  
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
@@ -363,7 +363,7 @@ def init():
 	errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
 
 	referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
-	userKey = loadlib.verifyUser(createdBy, 0, errorFile)
+	createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
 
 def verifyMode():
 	'''
@@ -585,7 +585,7 @@ def createExperiment(chromosome):
 			exptKey, \
 			mgiTypeKey, \
 			0, 1, \
-			userKey, userKey, loaddate, loaddate])
+			createdByKey, createdByKey, loaddate, loaddate])
 
 	exptDict[chromosome] = exptKey
 	seqExptDict[exptKey] = 1
