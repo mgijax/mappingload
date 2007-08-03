@@ -394,8 +394,7 @@ def verifyAssay(assay):
 	#
 	# effects:
 	#	verifies that the Assay exists by checking the database
-	#	writes to the error file if the Assay is invalid
-	#	initializes global assayKey
+	#	Invalid assay is fatal error
 	#
 	# returns:
 	#	Assay key if found

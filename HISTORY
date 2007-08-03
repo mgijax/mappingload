@@ -1,3 +1,10 @@
+TAG: mappingload-3-5-4-1
+DATE: 08/03/2006
+STAFF: sc
+CHANGES:
+1) mappingload.py - updated outdated comments 
+2) removed system_docs after creating wiki
+
 TAG: mappingload-3-5-1-4
 TAG: mappingload-3-5-1-3
 DATE: 09/28/2006
