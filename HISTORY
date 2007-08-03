@@ -4,7 +4,10 @@ STAFF: sc
 CHANGES:
 1) mappingload.py - updated outdated comments 
 2) removed system_docs after creating wiki
-
+3) remove Configuration.default - all this did was set and source mgiconfig
+4) removed sourcing of Configuration (which didn't work anyway as it didn't
+   (yet) know about MAPPINGLOAD variable. Added sourcing of mgiconfig
+    
 TAG: mappingload-3-5-1-4
 TAG: mappingload-3-5-1-3
 DATE: 09/28/2006

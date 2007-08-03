@@ -4,7 +4,11 @@
 # default configuration file
 #
 
-source ${MAPPINGLOAD}/Configuration
+if ( ${?MGICONFIG} == 0 ) then
+        setenv MGICONFIG /usr/local/mgi/live/mgiconfig
+endif
+
+source ${MGICONFIG}/master.config.csh
 
 setenv NOMENDATADIR 	?
 setenv NOMENDATAFILE 	${NOMENDATADIR}/?
