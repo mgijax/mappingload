@@ -3,26 +3,41 @@
 #
 # default configuration file
 #
+# cp config.default *.config (e.g. vega.config)
+# set all settings where default value is '?'
 
-if ( ${?MGICONFIG} == 0 ) then
-        setenv MGICONFIG /usr/local/mgi/live/mgiconfig
-endif
+source ./Configuration
 
-source ${MGICONFIG}/master.config.csh
+#
+# Mapping Load Configuration
+#
 
-setenv NOMENDATADIR 	?
-setenv NOMENDATAFILE 	${NOMENDATADIR}/?
-setenv NOMENLOG 	${NOMENDATAFILE}.log
-setenv NOMENREFERENCE 	J:
-setenv NOMENMODE	preview
-setenv NOMENBROADCAST	no
-
+# mapping assay type
 setenv MAPPINGASSAYTYPE	assembly
-setenv MAPPINGDATADIR   ${NOMENDATADIR}
-setenv MAPPINGDATAFILE  ${NOMENDATAFILE}.mapping
+
+# directory in which the input file is found and output will be written
+# this is typically NOMENDATADIR since nomenload creates this file
+setenv MAPPINGDATADIR   ?
+
+# full path to the input file. bcp files, error and diagnostics file
+# will e based on this filename
+setenv MAPPINGDATAFILE  ${MAPPINGDATADIR}.mapping.?
+
+# full path to jobstream log
 setenv MAPPINGLOG	${MAPPINGDATAFILE}.log
-setenv MAPPINGMODE	preview
-setenv JNUM		${NOMENREFERENCE}
+
+# Mapping Mode:
+# incremental - add mapping to this references experiments
+# full - delete mapping for this reference's experiments, load new mapping
+# preview - do everything except execute bcp/sql 
+setenv MAPPINGMODE	?
+
+# J number for the mapping experiment reference
+setenv JNUM		J:?
+
+# mapping experiment type
 setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
-setenv CREATEDBY	yz
+
+# login of the curator requesting this mapping
+setenv CREATEDBY	?
 

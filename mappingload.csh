@@ -7,7 +7,6 @@
 #
 
 setenv CONFIGFILE $1
-
 source ${CONFIGFILE}
 
 cd ${MAPPINGDATADIR}

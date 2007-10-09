@@ -1,3 +1,11 @@
+TAG: mappingload-3-5-4-2
+DATE: 08/09/2006
+STAFF: sc
+CHANGES: 
+1) added Configuration.default back - nomenload calls mappingload
+   and expect to find Configuration
+2) added comments to config.default
+
 TAG: mappingload-3-5-4-1
 DATE: 08/03/2006
 STAFF: sc

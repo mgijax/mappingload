@@ -16,7 +16,8 @@
 #
 # Assumes:
 #
-#	That no one else is adding Mapping or Accession IDs records to the database.
+#	That no one else is adding Mapping or Accession IDs records to the 
+#       database.
 #
 # Side Effects:
 #
@@ -46,15 +47,15 @@
 #	-C = Created By
 #
 #	processing modes:
-#		incremental - append the data to the existing Experiments (if they exist)
-#			    - create the Experiments if they don't exist
+#	incremental - append the data to existing Experiments (if they exist)
+#		    - create the Experiments if they don't exist
 #
-#		full - delete the data from the existing Experiments (if they exist)
-#		     - create the Experiments if they don't exist
+#	       full - delete the data from existing Experiments (if they exist)
+#		    - create the Experiments if they don't exist
 #
-#		preview - perform all record verifications but do not load the data or
-#		          make any changes to the database.  used for testing or to preview
-#			  the load.
+#     	    preview - perform all record verifications but do not load the data 
+#		      or make any changes to the database.  
+#		      Used for testing or to preview the load.
 #
 # Output:
 #
@@ -78,22 +79,23 @@
 #		if mode = full:  delete existing records and process
 #		if mode = preview:  set "DEBUG" to True
 #
-#	2.  Verify the J: is valid.
+#	2. Verify the J: is valid.
 #	    If the verification fails, report the error and stop.
 #
-#	3.  Create the master Experiment records and Accession records.
-#	    If Experiment records already exist for the Reference, delete the details
-#	    (but not the master experiment records themselves).
+#	3. Create the master Experiment records and Accession records.
+#	    If Experiment records already exist for the Reference, 
+#              delete the details
+#	       (but not the master experiment records themselves).
 #
 #	For each line in the input file:
 #
-#	1.  Verify the Marker Acc ID is valid.  Duplicates are reported as errors.
+#	1. Verify the Marker Acc ID is valid. Duplicates are reported as errors.
 #	    If the verification fails, report the error and skip the record.
 #
-#	2.  Verify the Assay is valid.
+#	2. Verify the Assay is valid.
 #	    If the verification fails, report the error and skip the record.
 #
-#	3.  Verify the Chromosome is valid.
+#	3. Verify the Chromosome is valid.
 #	    If the verification fails, report the error and skip the record.
 #
 #	4.  Determine the Experiment key for the Chromosome.
@@ -236,15 +238,16 @@ def init():
 	#
 	'''
  
-	global inputFile, diagFile, errorFile, errorFileName, diagFileName, passwordFileName
+	global inputFile, diagFile, errorFile, errorFileName, diagFileName
+	global passwordFileName, sqlFileName, noteFileName
 	global exptFile, exptMarkerFile, accFile, noteFile, sqlFile
-	global inputFileName, exptFileName, exptMarkerFileName, accFileName, noteFileName, sqlFileName
+	global inputFileName, exptFileName, exptMarkerFileName, accFileName
 	global mode, exptType, referenceKey, createdByKey
  
 	try:
-		optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
+    	    optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
 	except:
-		showUsage()
+	    showUsage()
  
 	#
 	# Set server, database, user, passwords depending on options
@@ -260,28 +263,28 @@ def init():
 	createdBy = ''
  
 	for opt in optlist:
-                if opt[0] == '-S':
-                        server = opt[1]
-                elif opt[0] == '-D':
-                        database = opt[1]
-                elif opt[0] == '-U':
-                        user = opt[1]
-                elif opt[0] == '-P':
-			passwordFileName = opt[1]
-                elif opt[0] == '-M':
-                        mode = opt[1]
-                elif opt[0] == '-I':
-                        inputFileName = opt[1]
-                elif opt[0] == '-R':
-                        jnum = opt[1]
-                elif opt[0] == '-E':
-                        exptType = re.sub('"', '', opt[1])
-                elif opt[0] == '-C':
-                        createdBy = opt[1]
-                else:
-                        showUsage()
+	    if opt[0] == '-S':
+		server = opt[1]
+	    elif opt[0] == '-D':
+		database = opt[1]
+	    elif opt[0] == '-U':
+		user = opt[1]
+	    elif opt[0] == '-P':
+		passwordFileName = opt[1]
+	    elif opt[0] == '-M':
+		mode = opt[1]
+	    elif opt[0] == '-I':
+		inputFileName = opt[1]
+	    elif opt[0] == '-R':
+		jnum = opt[1]
+	    elif opt[0] == '-E':
+		exptType = re.sub('"', '', opt[1])
+	    elif opt[0] == '-C':
+		createdBy = opt[1]
+	    else:
+		showUsage()
 
-	# User must specify Server, Database, User and Password
+    # User must specify Server, Database, User and Password
 	password = string.strip(open(passwordFileName, 'r').readline())
 	if server == '' or \
 	   database == '' or \
@@ -309,44 +312,44 @@ def init():
 	sqlFileName = tail + '.' + fdate + '.sql'
 
 	try:
-		inputFile = open(inputFileName, 'r')
+	    inputFile = open(inputFileName, 'r')
 	except:
-		exit(1, 'Could not open file %s\n' % inputFileName)
+	    exit(1, 'Could not open file %s\n' % inputFileName)
 		
 	try:
-		diagFile = open(diagFileName, 'w')
+	    diagFile = open(diagFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % diagFileName)
+	    exit(1, 'Could not open file %s\n' % diagFileName)
 		
 	try:
-		errorFile = open(errorFileName, 'w')
+	    errorFile = open(errorFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % errorFileName)
+	    exit(1, 'Could not open file %s\n' % errorFileName)
 		
 	try:
-		exptFile = open(exptFileName, 'w')
+	    exptFile = open(exptFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % exptFileName)
+	    exit(1, 'Could not open file %s\n' % exptFileName)
 		
 	try:
-		exptMarkerFile = open(exptMarkerFileName, 'w')
+	    exptMarkerFile = open(exptMarkerFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % exptMarkerFileName)
+	    exit(1, 'Could not open file %s\n' % exptMarkerFileName)
 		
 	try:
-		accFile = open(accFileName, 'w')
+	    accFile = open(accFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % accFileName)
+	    exit(1, 'Could not open file %s\n' % accFileName)
 		
 	try:
-		noteFile = open(noteFileName, 'w')
+	    noteFile = open(noteFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % noteFileName)
+	    exit(1, 'Could not open file %s\n' % noteFileName)
 		
 	try:
-		sqlFile = open(sqlFileName, 'w')
+	    sqlFile = open(sqlFileName, 'w')
 	except:
-		exit(1, 'Could not open file %s\n' % sqlFileName)
+	    exit(1, 'Could not open file %s\n' % sqlFileName)
 		
 	# Log all SQL
 	db.set_sqlLogFunction(db.sqlLogAll)
@@ -383,9 +386,9 @@ def verifyMode():
 	global DEBUG
 
 	if mode == 'preview':
-		DEBUG = 1
+	    DEBUG = 1
 	elif mode not in ['incremental', 'full']:
-		exit(1, 'Invalid Processing Mode:  %s\n' % (mode))
+	    exit(1, 'Invalid Processing Mode:  %s\n' % (mode))
 
 def verifyAssay(assay):
 	'''
@@ -394,7 +397,8 @@ def verifyAssay(assay):
 	#
 	# effects:
 	#	verifies that the Assay exists by checking the database
-	#	Invalid assay is fatal error
+	#	writes to the error file if the Assay is invalid
+	#	initializes global assayKey
 	#
 	# returns:
 	#	Assay key if found
@@ -402,9 +406,9 @@ def verifyAssay(assay):
 	'''
 
 	if assayDict.has_key(assay):
-		return assayDict[assay]
+	    return assayDict[assay]
 	else:
-		exit(1, 'Invalid Assay: %s\n' % (assay))
+	    exit(1, 'Invalid Assay: %s\n' % (assay))
 
 def verifyChromosome(chromosome, lineNum):
 	'''
@@ -426,10 +430,10 @@ def verifyChromosome(chromosome, lineNum):
 	global chromosomeList
 
 	if chromosome in chromosomeList:
-		return 1
+	    return 1
 	else:
-		errorFile.write('Invalid Chromosome (%d) %s\n' % (lineNum, chromosome))
-		return 0
+	    errorFile.write('Invalid Chromosome (%d) %s\n' % (lineNum, chromosome))
+	    return 0
 
 def verifyMarker(markerID, lineNum):
 	'''
@@ -438,10 +442,11 @@ def verifyMarker(markerID, lineNum):
 	#	lineNum - the line number of the record from the input file
 	#
 	# effects:
-	#	verifies that:
-	#		the Marker exists either in the marker dictionary or the database
-	#	writes to the error file if the Marker is invalid
-	#	addes the marker id and key to the marker dictionary if the Marker is valid
+	#    verifies that:
+	#    the Marker exists either in the marker dictionary or the database
+	#    writes to the error file if the Marker is invalid
+	#    adds the marker id and key to the marker dictionary 
+	#        *if the Marker is valid)
 	#
 	# returns:
 	#	0 and '' if the Marker is invalid
