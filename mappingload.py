@@ -574,7 +574,7 @@ def createExperiments():
 
 		# Update the AccessionMax value
 
-		db.sql('exec ACC_setMax %d' % (exptTag), None, execute = not DEBUG)
+		db.sql('select * from ACC_setMax (%d)' % (exptTag), None, execute = not DEBUG)
 
 def createExperiment(chromosome):
 
