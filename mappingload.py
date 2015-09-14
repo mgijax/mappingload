@@ -355,7 +355,7 @@ def init():
 	db.set_sqlLogFunction(db.sqlLogAll)
 
 	# Set Log File Descriptor
-	db.set_sqlLogFD(diagFile)
+	db.set_commandLogFile(diagFileName)
 
 	diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
 	diagFile.write('Server: %s\n' % (server))

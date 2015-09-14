@@ -1,3 +1,11 @@
+TAG: mappingload-6-0-0-1
+DATE: 09/14/2015
+STAFF: sc
+CHANGES: While testing TR12109/TR12058 nomenload's discovered a conversion bug:
+1) replaced: db.set_sqlLogFD(diagFile)
+   with: db.set_commandLogFile(diagFileName)
+   as db.set_sqlLogFD no longer exists
+
 TAG: mappingload-3-5-4-2
 DATE: 08/09/2006
 STAFF: sc
