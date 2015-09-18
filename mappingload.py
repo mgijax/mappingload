@@ -104,6 +104,9 @@
 #
 # History:
 #
+# sc	09/16/2015
+#	-TR12058/TR12108 nomen loads - mapping needs postgres conversion
+#
 # lec	01/30/2003
 #	- TR 3928 (Fantom2 load)
 #		. provide Assay value for each input record
@@ -135,7 +138,6 @@ exptFile = ''		# file descriptor
 exptMarkerFile = ''	# file descriptor
 accFile = ''		# file descriptor
 noteFile = ''		# file descriptor
-sqlFile = ''		# file descriptor
 
 diagFileName = ''	# file name
 errorFileName = ''	# file name
@@ -146,7 +148,6 @@ exptFileName = ''	# file name
 exptMarkerFileName = ''	# file name
 accFileName = ''	# file name
 noteFileName = ''	# file name
-sqlFileName = ''	# file name
 
 mode = ''		# processing mode
 
@@ -239,8 +240,8 @@ def init():
 	'''
  
 	global inputFile, diagFile, errorFile, errorFileName, diagFileName
-	global passwordFileName, sqlFileName, noteFileName
-	global exptFile, exptMarkerFile, accFile, noteFile, sqlFile
+	global passwordFileName, noteFileName
+	global exptFile, exptMarkerFile, accFile, noteFile
 	global inputFileName, exptFileName, exptMarkerFileName, accFileName
 	global mode, exptType, referenceKey, createdByKey
  
@@ -309,7 +310,6 @@ def init():
 	exptMarkerFileName = tail + '.' + fdate + '.MLD_Expt_Marker.bcp'
 	accFileName = tail + '.' + fdate + '.ACC_Accession.bcp'
 	noteFileName = tail + '.' + fdate + '.MLD_Notes.bcp'
-	sqlFileName = tail + '.' + fdate + '.sql'
 
 	try:
 	    inputFile = open(inputFileName, 'r')
@@ -345,11 +345,6 @@ def init():
 	    noteFile = open(noteFileName, 'w')
 	except:
 	    exit(1, 'Could not open file %s\n' % noteFileName)
-		
-	try:
-	    sqlFile = open(sqlFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % sqlFileName)
 		
 	# Log all SQL
 	db.set_sqlLogFunction(db.sqlLogAll)
@@ -462,11 +457,11 @@ def verifyMarker(markerID, lineNum):
 		[markerKey, markerSymbol] = string.split(markerDict[markerID], ':')
 		return(markerKey, markerSymbol)
 	else:
-		results = db.sql('select m._Marker_key, m.symbol ' + \
-			'from MRK_Marker m, MRK_Acc_View a ' + \
-			'where a.accID = "%s" ' % (markerID) + \
-			'and a._Object_key = m._Marker_key ' + \
-			'and m._Organism_key = 1', 'auto')
+		results = db.sql('''select m._Marker_key, m.symbol 
+			from MRK_Marker m, MRK_Acc_View a 
+			where a.accID = "%s" 
+			and a._Object_key = m._Marker_key 
+			and m._Organism_key = 1'''  % (markerID), 'auto')
 		for r in results:
 			markerKey = r['_Marker_key']
 			markerSymbol = r['symbol']
@@ -493,8 +488,10 @@ def loadDictionaries():
 
 	global chromosomeList, assayDict, inputChrList
 
-	results = db.sql('select chromosome from MRK_Chromosome where _Organism_key = 1 ' + \
-		'and chromosome not in ("UN", "MT") order by sequenceNum', 'auto')
+	results = db.sql('''select chromosome from MRK_Chromosome 
+		where _Organism_key = 1 
+		and chromosome not in ('UN', 'MT') 
+		order by sequenceNum''', 'auto')
 	for r in results:
 		chromosomeList.append(r['chromosome'])
 
@@ -527,24 +524,29 @@ def createExperiments():
 	global exptDict, seqExptDict
 	global exptKey, accKey, mgiKey, exptTag
 
-       	results = db.sql('select maxKey = max(_Expt_key) + 1 from MLD_Expts', 'auto')
+       	results = db.sql('''select max(_Expt_key) + 1 as maxKey 
+		from MLD_Expts''', 'auto')
        	if results[0]['maxKey'] is None:
                	exptKey = 1000
        	else:
                	exptKey = results[0]['maxKey']
 
-       	results = db.sql('select maxKey = max(_Accession_key) + 1 from ACC_Accession', 'auto')
+       	results = db.sql('''select max(_Accession_key) + 1  as maxKey
+		from ACC_Accession''', 'auto')
        	if results[0]['maxKey'] is None:
                	accKey = 1000
        	else:
                	accKey = results[0]['maxKey']
 
-       	results = db.sql('select maxKey = maxNumericPart + 1 from ACC_AccessionMax ' + \
-		'where prefixPart = "%s"' % (mgiPrefix), 'auto')
+       	results = db.sql('''select maxNumericPart + 1 as maxKey
+		from ACC_AccessionMax 
+		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
-	results = db.sql('select _Expt_key, chromosome, tag from MLD_Expts ' + \
-		'where _Refs_key = %d order by tag' % (referenceKey), 'auto')
+	results = db.sql('''select _Expt_key, chromosome, tag 
+		from MLD_Expts 
+		where _Refs_key = %d 
+		order by tag''' % (referenceKey), 'auto')
 
 	# experiment records exists
 
@@ -557,7 +559,8 @@ def createExperiments():
 
 		for r in results:
 			exptDict[r['chromosome']] = r['_Expt_key']
-			s = db.sql('select maxKey = max(sequenceNum) + 1 from MLD_Expt_Marker where _Expt_key = %d' % (r['_Expt_key']), 'auto')
+			s = db.sql('''select max(sequenceNum) + 1 as maxKey
+			    from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
 			if s[0]['maxKey'] is None:
 			  seqExptDict[r['_Expt_key']] = 1
 			else:
@@ -574,7 +577,8 @@ def createExperiments():
 
 		# Update the AccessionMax value
 
-		db.sql('select * from ACC_setMax (%d)' % (exptTag), None, execute = not DEBUG)
+		db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
+		db.commit()
 
 def createExperiment(chromosome):
 
@@ -676,27 +680,8 @@ def processFile():
 			matrixData, \
 			loaddate, loaddate])
 
-		# update modification date of experiment
-		sqlFile.write('update MLD_Expts set modification_date = getdate() where _Expt_key = %s\ngo\n' % (chrExptKey))
-
 		# increment marker sequence number for the experiment
 		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
-
-		# update marker's chromosome...
-		if updateChr == 'yes':
-			sqlFile.write('update MRK_Marker ' + \
-				'set modification_date = getdate(), chromosome = "%s" ' % (chromosome) + \
-				'where _Marker_key = %s\ngo\n' % (markerKey))
-
-			sqlFile.write('update MRK_Offset ' + \
-				'set modification_date = getdate(), offset = -1.0 ' + \
-				'where _Marker_key = %s\ngo\n' % (markerKey))
-
-		# update cytogenetic band, if it is provided
-		if band != "":
-			sqlFile.write('update MRK_Marker ' + \
-				'set modification_date = getdate(), cytogeneticOffset = "%s" ' % (band) + \
-				'where _Marker_key = %s\ngo\n' % (markerKey))
 
 #	end of "for line in inputFile.readlines():"
 
@@ -752,32 +737,41 @@ def bcpFiles():
 	exptMarkerFile.close()
 	accFile.close()
 	noteFile.close()
-	sqlFile.close()
 
-	cmd1 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'MLD_Expts', exptFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+        bcpCommand = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
+	currentDir = os.getcwd()
+	cmd1 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
+	   (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expts', currentDir, exptFileName)
 
-	cmd2 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'MLD_Expt_Marker', exptMarkerFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+	cmd2 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expt_Marker', currentDir, exptMarkerFileName)
 
-	cmd3 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'ACC_Accession', accFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+	cmd3 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'ACC_Accession', currentDir, accFileName)
 
-	cmd4 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-		% (passwordFileName, db.get_sqlDatabase(), \
-	   	'MLD_Notes', noteFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+	cmd4 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Notes', currentDir, noteFileName)
 
-	cmd5 = 'cat %s | isql -S%s -D%s -U%s -i%s' \
-		% (passwordFileName, db.get_sqlServer(), db.get_sqlDatabase(), db.get_sqlUser(), sqlFileName)
+	#cmd1 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
+	#	% (passwordFileName, db.get_sqlDatabase(), \
+	#   	'MLD_Expts', exptFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+
+	#cmd2 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
+	#	% (passwordFileName, db.get_sqlDatabase(), \
+	#   	'MLD_Expt_Marker', exptMarkerFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+
+	#cmd3 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
+	#	% (passwordFileName, db.get_sqlDatabase(), \
+	#   	'ACC_Accession', accFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+
+	#cmd4 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
+	#	% (passwordFileName, db.get_sqlDatabase(), \
+	#   	'MLD_Notes', noteFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
 
 	diagFile.write('%s\n' % cmd1)
 	diagFile.write('%s\n' % cmd2)
 	diagFile.write('%s\n' % cmd3)
 	diagFile.write('%s\n' % cmd4)
-	diagFile.write('%s\n' % cmd5)
 
 	if DEBUG:
 		return
@@ -786,8 +780,6 @@ def bcpFiles():
 	os.system(cmd2)
 	os.system(cmd3)
 	os.system(cmd4)
-	os.system(cmd5)
-#	db.sql('dump transaction %s with truncate_only' % (db.get_sqlDatabase()), None, execute = not DEBUG)
 
 #
 # Main
