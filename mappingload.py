@@ -737,36 +737,22 @@ def bcpFiles():
 	exptMarkerFile.close()
 	accFile.close()
 	noteFile.close()
+	db.commit()
 
         bcpCommand = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
 	currentDir = os.getcwd()
-	cmd1 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
-	   (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expts', currentDir, exptFileName)
 
-	cmd2 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
-           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expt_Marker', currentDir, exptMarkerFileName)
+	cmd1 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+	   (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expts', currentDir, exptFileName, bcpdelim)
 
-	cmd3 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
-           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'ACC_Accession', currentDir, accFileName)
+	cmd2 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expt_Marker', currentDir, exptMarkerFileName, bcpdelim)
 
-	cmd4 = '%s %s %s %s %s %s  "|" "\\n" mgd' % \
-           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Notes', currentDir, noteFileName)
+	cmd3 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'ACC_Accession', currentDir, accFileName, bcpdelim)
 
-	#cmd1 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-	#	% (passwordFileName, db.get_sqlDatabase(), \
-	#   	'MLD_Expts', exptFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
-
-	#cmd2 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-	#	% (passwordFileName, db.get_sqlDatabase(), \
-	#   	'MLD_Expt_Marker', exptMarkerFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
-
-	#cmd3 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-	#	% (passwordFileName, db.get_sqlDatabase(), \
-	#   	'ACC_Accession', accFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
-
-	#cmd4 = 'cat %s | bcp %s..%s in %s -c -t\"%s" -S%s -U%s' \
-	#	% (passwordFileName, db.get_sqlDatabase(), \
-	#   	'MLD_Notes', noteFileName, bcpdelim, db.get_sqlServer(), db.get_sqlUser())
+	cmd4 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Notes', currentDir, noteFileName, bcpdelim)
 
 	diagFile.write('%s\n' % cmd1)
 	diagFile.write('%s\n' % cmd2)
