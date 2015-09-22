@@ -459,7 +459,7 @@ def verifyMarker(markerID, lineNum):
 	else:
 		results = db.sql('''select m._Marker_key, m.symbol 
 			from MRK_Marker m, MRK_Acc_View a 
-			where a.accID = "%s" 
+			where a.accID = '%s' 
 			and a._Object_key = m._Marker_key 
 			and m._Organism_key = 1'''  % (markerID), 'auto')
 		for r in results:
@@ -501,7 +501,7 @@ def loadDictionaries():
 
 	# create unique list of chromosomes from input file
 	for line in inputFile.readlines():
-	    tokens = string.split(line[:-1], '\t')
+	    tokens = string.split(line[:-1], '|')
 	    chromosome = tokens[1]
 	    if chromosome not in inputChrList:
 		inputChrList.append(chromosome)
@@ -627,7 +627,7 @@ def processFile():
 		lineNum = lineNum + 1
 
 		# Split the line into tokens
-		tokens = string.split(line[:-1], '\t')
+		tokens = string.split(line[:-1], '|')
 
 		try:
 			markerID = tokens[0]
