@@ -32,6 +32,8 @@
 #		field 4: Band (optional)
 #		field 5: Assay Type
 #		field 6: Description
+#		field 7: J Number
+#		field 8: Created By
 #
 #	last line of file will be the experiment note (optional)
 #
@@ -42,9 +44,7 @@
 #	-P = password file
 #	-M = mode (incremental, full, preview)
 #	-I = input file of mapping data
-#	-R = Reference (J: in format J:#####)
 #	-E = Experiment Type ("TEXT")
-#	-C = Created By
 #
 #	processing modes:
 #	incremental - append the data to existing Experiments (if they exist)
@@ -105,7 +105,6 @@
 # History:
 #
 # sc	09/16/2015
-#	-TR12058/TR12108 nomen loads - mapping needs postgres conversion
 #
 # lec	01/30/2003
 #	- TR 3928 (Fantom2 load)
@@ -193,9 +192,7 @@ def showUsage():
 		'-P password file\n' + \
 		'-M mode\n' + \
 		'-I input file\n' + \
-		'-R J# (####)\n' + \
-		'-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n' + \
-		'-C Created By\n'
+		'-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n'
 	exit(1, usage)
  
 def exit(status, message = None):
@@ -276,12 +273,8 @@ def init():
 		mode = opt[1]
 	    elif opt[0] == '-I':
 		inputFileName = opt[1]
-	    elif opt[0] == '-R':
-		jnum = opt[1]
 	    elif opt[0] == '-E':
 		exptType = re.sub('"', '', opt[1])
-	    elif opt[0] == '-C':
-		createdBy = opt[1]
 	    else:
 		showUsage()
 
@@ -293,9 +286,7 @@ def init():
 	   password == '' or \
 	   mode == '' or \
 	   inputFileName == '' or \
-	   jnum == '' or \
-	   exptType == '' or \
-	   createdBy == '':
+	   exptType == '':
 		showUsage()
 
 	# Initialize db.py DBMS parameters
@@ -359,9 +350,6 @@ def init():
 	diagFile.write('Input File: %s\n' % (inputFileName))
 
 	errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
-
-	referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
-	createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
 
 def verifyMode():
 	'''
@@ -623,6 +611,9 @@ def processFile():
 	inputFile = open(inputFileName, 'r')
 	for line in inputFile.readlines():
 
+	inputFile = open(inputFileName, 'r')
+	for line in inputFile.readlines():
+
 		error = 0
 		lineNum = lineNum + 1
 
@@ -636,6 +627,8 @@ def processFile():
 			band = tokens[3]
 			assay = tokens[4]
 			description = tokens[5]
+			jnum = tokens[6]
+			createdBy = tokens[7]
 		except:
 			# if it's not a valid line, assume it's the note
 			note = line
@@ -644,6 +637,8 @@ def processFile():
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
+	        referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
+	        createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
 		error = not verifyChromosome(chromosome, lineNum)
 
 		# determine experiment key for this chromosome
@@ -771,11 +766,23 @@ def bcpFiles():
 # Main
 #
 
-init()
+print 'mappingload:verifyMode()'
 verifyMode()
+
+print 'mappingload:init()'
+init()
+
+print 'mappingload:loadDictionaries()'
 loadDictionaries()
+
+print 'createExperiments'
 createExperiments()
+
+print 'processFile()'
 processFile()
+
+print 'bcpFiles()'
 bcpFiles()
+
 exit(0)
 

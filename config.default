@@ -1,4 +1,4 @@
-#!/bin/csh -f
+#!/bin/sh
 
 #
 # default configuration file
@@ -6,38 +6,45 @@
 # cp config.default *.config (e.g. vega.config)
 # set all settings where default value is '?'
 
-source ./Configuration
+if [ "${MGICONFIG}" = "" ]
+then
+        MGICONFIG=/usr/local/mgi/live/mgiconfig
+        export MGICONFIG
+fi
+
+. ${MGICONFIG}/master.config.sh
 
 #
 # Mapping Load Configuration
 #
-
+#
 # mapping assay type
-setenv MAPPINGASSAYTYPE	assembly
+MAPPINGASSAYTYPE=assembly
+export MAPPINGASSAYTYPE
 
 # directory in which the input file is found and output will be written
-# this is typically NOMENDATADIR since nomenload creates this file
-setenv MAPPINGDATADIR   ?
-
+# this is typically OUTPUTDIR since nomenload creates this file
+# MAPPINGDATADIR=${OUTPUTDIR}
+# export MAPPINGDATADIR
+#
 # full path to the input file. bcp files, error and diagnostics file
 # will e based on this filename
-setenv MAPPINGDATAFILE  ${MAPPINGDATADIR}.mapping.?
+MAPPINGDATAFILE=${INPUT_FILE_DEFAULT}.mapping
+export MAPPINGDATAFILE
 
 # full path to jobstream log
-setenv MAPPINGLOG	${MAPPINGDATAFILE}.log
+MAPPINGLOG=${MAPPINGDATAFILE}.log
+export MAPPINGLOG
 
 # Mapping Mode:
 # incremental - add mapping to this references experiments
 # full - delete mapping for this reference's experiments, load new mapping
-# preview - do everything except execute bcp/sql 
-setenv MAPPINGMODE	?
+# preview - do everything except execute bcp/sql
+MAPPINGMODE=incremental
+export MAPPINGMODE
 
-# J number for the mapping experiment reference
-setenv JNUM		J:?
-
-# mapping experiment type
-setenv EXPERIMENTTYPE	"TEXT-Physical Mapping"
-
-# login of the curator requesting this mapping
-setenv CREATEDBY	?
+# mapping experiment type - as specified by the curator
+# e.g. "TEXT-Physical Mapping"
+EXPERIMENTTYPE="TEXT-Physical Mapping"
+export EXPERIMENTTYPE
 
