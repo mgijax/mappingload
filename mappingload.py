@@ -240,7 +240,7 @@ def init():
 	global passwordFileName, noteFileName
 	global exptFile, exptMarkerFile, accFile, noteFile
 	global inputFileName, exptFileName, exptMarkerFileName, accFileName
-	global mode, exptType, referenceKey, createdByKey
+	global mode, exptType
  
 	try:
     	    optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
@@ -295,12 +295,11 @@ def init():
  
 	fdate = mgi_utils.date('%m%d%Y')	# current date
 	head, tail = os.path.split(inputFileName) 
-	diagFileName = tail + '.' + fdate + '.diagnostics'
-	errorFileName = tail + '.' + fdate + '.error'
-	exptFileName = tail + '.' + fdate + '.MLD_Expts.bcp'
-	exptMarkerFileName = tail + '.' + fdate + '.MLD_Expt_Marker.bcp'
-	accFileName = tail + '.' + fdate + '.ACC_Accession.bcp'
-	noteFileName = tail + '.' + fdate + '.MLD_Notes.bcp'
+	errorFileName = tail + '.error'
+	exptFileName = tail + '.MLD_Expts.bcp'
+	exptMarkerFileName = tail + '.MLD_Expt_Marker.bcp'
+	accFileName = tail + '.ACC_Accession.bcp'
+	noteFileName = tail + '.MLD_Notes.bcp'
 
 	try:
 	    inputFile = open(inputFileName, 'r')
@@ -570,7 +569,7 @@ def createExperiments():
 
 def createExperiment(chromosome):
 
-	global exptKey, accKey, mgiKey, exptTag
+	global exptKey, accKey, mgiKey, exptTag, referenceKey, createdByKey
 
 	bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
 	bcpWrite(accFile, [accKey, \
@@ -602,6 +601,8 @@ def processFile():
 	#	nothing
 	#
 	'''
+
+	global referenceKey, createdByKey
 
 	lineNum = 0
 	note = ''
@@ -763,11 +764,11 @@ def bcpFiles():
 # Main
 #
 
-print 'mappingload:verifyMode()'
-verifyMode()
-
 print 'mappingload:init()'
 init()
+
+print 'mappingload:verifyMode()'
+verifyMode()
 
 print 'mappingload:loadDictionaries()'
 loadDictionaries()
