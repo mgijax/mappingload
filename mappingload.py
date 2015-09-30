@@ -293,8 +293,8 @@ def init():
 	db.set_sqlLogin(user, password, server, database)
 	db.useOneConnection(1)
  
-	fdate = mgi_utils.date('%m%d%Y')	# current date
 	head, tail = os.path.split(inputFileName) 
+	diagFileName = tail + '.diag'
 	errorFileName = tail + '.error'
 	exptFileName = tail + '.MLD_Expts.bcp'
 	exptMarkerFileName = tail + '.MLD_Expt_Marker.bcp'
@@ -773,13 +773,13 @@ verifyMode()
 print 'mappingload:loadDictionaries()'
 loadDictionaries()
 
-print 'createExperiments'
+print 'mappinglaod:createExperiments'
 createExperiments()
 
-print 'processFile()'
+print 'mappinglaod:processFile()'
 processFile()
 
-print 'bcpFiles()'
+print 'mappinglaod:bcpFiles()'
 bcpFiles()
 
 exit(0)
