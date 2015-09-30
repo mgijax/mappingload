@@ -782,9 +782,6 @@ def bcpFiles():
 	diagFile.write('%s\n' % cmd3)
 	diagFile.write('%s\n' % cmd4)
 
-	if DEBUG:
-		return
-
 	os.system(cmd1)
 	os.system(cmd2)
 	os.system(cmd3)
@@ -809,8 +806,11 @@ createExperiments()
 print 'mappinglaod:processFile()'
 processFile()
 
-print 'mappinglaod:bcpFiles()'
-bcpFiles()
+if DEBUG:
+    print 'mappingload:debugging turned on: no data has been loaded'
+else:
+    print 'mappinglaod:bcpFiles()'
+    bcpFiles()
 
 exit(0)
 
