@@ -127,7 +127,7 @@ import loadlib
 
 #globals
 
-DEBUG = 0		# set DEBUG to false unless preview mode is selected
+DEBUG = 1		# set DEBUG to false unless preview mode is selected
 
 inputFile = ''		# file descriptor
 diagFile = ''		# file descriptor
@@ -477,7 +477,7 @@ def loadDictionaries():
 
 	results = db.sql('''select chromosome from MRK_Chromosome 
 		where _Organism_key = 1 
-		and chromosome not in ('UN', 'MT') 
+		and chromosome not in ('UN') 
 		order by sequenceNum''', 'auto')
 	for r in results:
 		chromosomeList.append(r['chromosome'])
@@ -508,8 +508,7 @@ def createExperiments():
 	#
 	'''
 
-	global exptDict, seqExptDict
-	global exptKey, accKey, mgiKey, exptTag
+	global exptKey, accKey, mgiKey
 
        	results = db.sql('''select max(_Expt_key) + 1 as maxKey 
 		from MLD_Expts''', 'auto')
@@ -530,6 +529,26 @@ def createExperiments():
 		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
+def createExperiments2():
+	'''
+	# requires:
+	#
+	# effects:
+	#	creates bcp entries for:
+	#		Master Experiment table
+	#		Accession table
+	#
+	# returns:
+	#	nothing
+	#
+	'''
+
+	#
+	# only run this once after the input file is ready to pick up the J:
+	#
+
+	global exptDict, seqExptDict
+
 	results = db.sql('''select _Expt_key, chromosome, tag 
 		from MLD_Expts 
 		where _Refs_key = %d 
@@ -569,7 +588,7 @@ def createExperiments():
 
 def createExperiment(chromosome):
 
-	global exptKey, accKey, mgiKey, exptTag, referenceKey, createdByKey
+	global exptKey, accKey, mgiKey, exptTag
 
 	bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
 	bcpWrite(accFile, [accKey, \
@@ -602,7 +621,7 @@ def processFile():
 	#
 	'''
 
-	global referenceKey, createdByKey
+	global referenceKey
 
 	lineNum = 0
 	note = ''
@@ -639,6 +658,19 @@ def processFile():
 	        createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
 		error = not verifyChromosome(chromosome, lineNum)
 
+		if markerKey == 0 or \
+		   assayKey == 0 or \
+		   referenceKey == 0 or \
+		   createdByKey == 0:
+			# set error flag to true
+			error = 1
+
+		# if errors, continue to next record
+		if error:
+			continue
+
+		# if no errors, process
+
 		# determine experiment key for this chromosome
 		# if you can't find it, try to create it
 
@@ -651,15 +683,13 @@ def processFile():
 		else:
 			chrExptKey = exptDict[chromosome]
 
-		if markerKey == 0 or assayKey == 0 or chrExptKey == 0:
-			# set error flag to true
-			error = 1
-
 		# if errors, continue to next record
-		if error:
+		if chrExptKey == 0:
 			continue
 
-		# if no errors, process
+		# run once...needs the reference
+		if lineNum == 1:
+			createExperiments2()
 
 		# add marker to experiment marker file
 		bcpWrite(exptMarkerFile, \
@@ -774,6 +804,7 @@ print 'mappingload:loadDictionaries()'
 loadDictionaries()
 
 print 'mappinglaod:createExperiments'
+print referenceKey
 createExperiments()
 
 print 'mappinglaod:processFile()'
