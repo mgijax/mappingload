@@ -47,10 +47,10 @@
 #	-E = Experiment Type ("TEXT")
 #
 #	processing modes:
-#	incremental - append the data to existing Experiments (if they exist)
+#	   incremental - append the data to existing Experiments (if they exist)
 #		    - create the Experiments if they don't exist
 #
-#	       full - delete the data from existing Experiments (if they exist)
+#	   full - delete the data from existing Experiments (if they exist)
 #		    - create the Experiments if they don't exist
 #
 #     	    preview - perform all record verifications but do not load the data 
@@ -607,9 +607,6 @@ def processFile():
 	note = ''
 
 	# For each line in the input file
-
-	inputFile = open(inputFileName, 'r')
-	for line in inputFile.readlines():
 
 	inputFile = open(inputFileName, 'r')
 	for line in inputFile.readlines():
