@@ -804,7 +804,6 @@ print 'mappingload:loadDictionaries()'
 loadDictionaries()
 
 print 'mappinglaod:createExperiments'
-print referenceKey
 createExperiments()
 
 print 'mappinglaod:processFile()'
