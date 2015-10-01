@@ -494,14 +494,12 @@ def loadDictionaries():
 		inputChrList.append(chromosome)
         inputFile.close()
 
-def createExperiments():
+def getPrimaryKeys():
 	'''
 	# requires:
 	#
 	# effects:
-	#	creates bcp entries for:
-	#		Master Experiment table
-	#		Accession table
+	#	get/store next primary keys
 	#
 	# returns:
 	#	nothing
@@ -529,14 +527,12 @@ def createExperiments():
 		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
-def createExperiments2():
+def createExperimentMaster():
 	'''
 	# requires:
 	#
 	# effects:
-	#	creates bcp entries for:
-	#		Master Experiment table
-	#		Accession table
+	#	preparing for new/existing MLD_Expts, MLD_Expt_Marker
 	#
 	# returns:
 	#	nothing
@@ -557,12 +553,15 @@ def createExperiments2():
 	# experiment records exists
 
 	if len(results) > 0:
+
+		# if 'full', then delete existing MLD_Expt_Marker records
 		if mode == 'full':
 			# delete the existing *details*.....
 			db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
 				' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
 				'auto', execute = not DEBUG)
 
+		# set seqExptDict to save the next max(sequenceNum) for each _Expt_key/chromosome
 		for r in results:
 			exptDict[r['chromosome']] = r['_Expt_key']
 			s = db.sql('''select max(sequenceNum) + 1 as maxKey
@@ -579,14 +578,26 @@ def createExperiments2():
 	else:
 		for c in chromosomeList:
 			if c in inputChrList:
-			    createExperiment(c)
+			    createExperimentBCP(c)
 
 		# Update the AccessionMax value
 
 		db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
 		db.commit()
 
-def createExperiment(chromosome):
+def createExperimentBCP(chromosome):
+	'''
+	# requires:
+	#
+	# effects:
+	#	creates bcp entries for:
+	#		MLD_Expts
+	#		ACC_Accession
+	#
+	# returns:
+	#	nothing
+	#
+	'''
 
 	global exptKey, accKey, mgiKey, exptTag
 
@@ -672,10 +683,10 @@ def processFile():
 		# if no errors, process
 
 		# determine experiment key for this chromosome
-		# if you can't find it, try to create it
+		# if it doesn't exist, create it
 
 		if not exptDict.has_key(chromosome):
-			createExperiment(chromosome)
+			createExperimentBCP(chromosome)
 
 		if not exptDict.has_key(chromosome):
 			errorFile.write('Cannot Find Experiment Key For Chromosome (%d): %s\n' % (lineNum, chromosome))
@@ -689,7 +700,7 @@ def processFile():
 
 		# run once...needs the reference
 		if lineNum == 1:
-			createExperiments2()
+			createExperimentMaster()
 
 		# add marker to experiment marker file
 		bcpWrite(exptMarkerFile, \
@@ -791,23 +802,23 @@ def bcpFiles():
 # Main
 #
 
-print 'mappingload:init()'
+#print 'mappingload:init()'
 init()
 
-print 'mappingload:verifyMode()'
+#print 'mappingload:verifyMode()'
 verifyMode()
 
-print 'mappingload:loadDictionaries()'
+#print 'mappingload:loadDictionaries()'
 loadDictionaries()
 
-print 'mappinglaod:createExperiments'
-createExperiments()
+#print 'mappinglaod:getPrimaryKeys'
+getPrimaryKeys()
 
-print 'mappinglaod:processFile()'
+#print 'mappinglaod:processFile()'
 processFile()
 
 if DEBUG:
-    print 'mappingload:debugging turned on: no data has been loaded'
+    print 'mappingload:debugging turned on: no data will be loaded'
 else:
     print 'mappinglaod:bcpFiles()'
     bcpFiles()
