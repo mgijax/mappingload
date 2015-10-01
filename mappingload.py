@@ -127,7 +127,7 @@ import loadlib
 
 #globals
 
-DEBUG = 1		# set DEBUG to false unless preview mode is selected
+DEBUG = 0		# set DEBUG to false unless preview mode is selected
 
 inputFile = ''		# file descriptor
 diagFile = ''		# file descriptor
