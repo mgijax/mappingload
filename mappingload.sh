@@ -3,7 +3,7 @@
 #
 # Wrapper script to create & load new mapping experiments
 #
-# Usage:  mappingload.csh configFile
+# Usage:  mappingload.sh configFile
 #
 
 CONFIG_FILE=$1

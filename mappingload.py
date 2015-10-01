@@ -53,7 +53,7 @@
 #	   full - delete the data from existing Experiments (if they exist)
 #		    - create the Experiments if they don't exist
 #
-#     	    preview - perform all record verifications but do not load the data 
+#     	   preview - perform all record verifications but do not load the data 
 #		      or make any changes to the database.  
 #		      Used for testing or to preview the load.
 #
@@ -103,6 +103,8 @@
 #	5.  Create MLD_Expt_Marker record for the Marker.
 #
 # History:
+#
+# lec   10/01/2015 : TR12070/12116 : set up for Curator sanity check (see nomenload)
 #
 # sc	09/16/2015
 #
