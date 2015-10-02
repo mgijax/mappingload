@@ -510,22 +510,19 @@ def getPrimaryKeys():
 
 	global exptKey, accKey, mgiKey
 
-       	results = db.sql('''select max(_Expt_key) + 1 as maxKey 
-		from MLD_Expts''', 'auto')
+       	results = db.sql('''select max(_Expt_key) + 1 as maxKey from MLD_Expts''', 'auto')
        	if results[0]['maxKey'] is None:
                	exptKey = 1000
        	else:
                	exptKey = results[0]['maxKey']
 
-       	results = db.sql('''select max(_Accession_key) + 1  as maxKey
-		from ACC_Accession''', 'auto')
+       	results = db.sql('''select max(_Accession_key) + 1  as maxKey from ACC_Accession''', 'auto')
        	if results[0]['maxKey'] is None:
                	accKey = 1000
        	else:
                	accKey = results[0]['maxKey']
 
-       	results = db.sql('''select maxNumericPart + 1 as maxKey
-		from ACC_AccessionMax 
+       	results = db.sql('''select maxNumericPart + 1 as maxKey from ACC_AccessionMax 
 		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
@@ -545,13 +542,12 @@ def initExperimentMaster():
 	# only run this once after the input file is ready to pick up the J:
 	#
 
-	global exptDict, seqExptDict
+	global exptDict, seqExptDict, exptTag
 
 	print "initExperimentMaster"
 
-	results = db.sql('''select _Expt_key, chromosome, tag 
-		from MLD_Expts 
-		where _Refs_key = %d 
+	results = db.sql('''select _Expt_key, chromosome, tag
+		from MLD_Expts where _Refs_key = %d 
 		order by tag''' % (referenceKey), 'auto')
 
 	# experiment records exists
