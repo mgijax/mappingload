@@ -175,6 +175,8 @@ accKey = 1000
 mgiKey = 1000
 exptTag = 1
 
+initExperimentMasterDone = 0
+
 loaddate = loadlib.loaddate	# current date
 
 def showUsage():
@@ -529,7 +531,7 @@ def getPrimaryKeys():
 		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
-def createExperimentMaster():
+def initExperimentMaster():
 	'''
 	# requires:
 	#
@@ -545,7 +547,7 @@ def createExperimentMaster():
 	# only run this once after the input file is ready to pick up the J:
 	#
 
-	global exptDict, seqExptDict
+	global exptDict, seqExptDict, initExperimentMasterDone
 
 	results = db.sql('''select _Expt_key, chromosome, tag 
 		from MLD_Expts 
@@ -586,6 +588,8 @@ def createExperimentMaster():
 
 		db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
 		db.commit()
+
+	initExperimentMasterDone = 1
 
 def createExperimentBCP(chromosome):
 	'''
@@ -634,9 +638,10 @@ def processFile():
 	#
 	'''
 
-	global referenceKey
+	global referenceKey, seqExptDict
 
 	lineNum = 0
+	initExperimentMasterDone = 0
 	note = ''
 
 	# For each line in the input file
@@ -663,13 +668,16 @@ def processFile():
 			# if it's not a valid line, assume it's the note
 			note = line
 			continue
-#			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
 	        referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
 	        createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
 		error = not verifyChromosome(chromosome, lineNum)
+
+		# run once...needs the reference
+		if initExperimentMasterDone == 0 and referenceKey != 0:
+			initExperimentMaster()
 
 		if markerKey == 0 or \
 		   assayKey == 0 or \
@@ -699,10 +707,6 @@ def processFile():
 		# if errors, continue to next record
 		if chrExptKey == 0:
 			continue
-
-		# run once...needs the reference
-		if lineNum == 1:
-			createExperimentMaster()
 
 		# add marker to experiment marker file
 		bcpWrite(exptMarkerFile, \
