@@ -685,6 +685,10 @@ def processFile():
 
 		# if no errors, process
 
+		# run once...needs the reference
+		if lineNum == 1:
+			createExperimentMaster()
+
 		# determine experiment key for this chromosome
 		# if it doesn't exist, create it
 
@@ -700,10 +704,6 @@ def processFile():
 		# if errors, continue to next record
 		if chrExptKey == 0:
 			continue
-
-		# run once...needs the reference
-		if lineNum == 1:
-			createExperimentMaster()
 
 		# add marker to experiment marker file
 		bcpWrite(exptMarkerFile, \
