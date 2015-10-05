@@ -295,9 +295,8 @@ def init():
 	db.set_sqlLogin(user, password, server, database)
 	db.useOneConnection(1)
  
-	head, tail = os.path.split(inputFileName) 
-	diagFileName = tail + '.diag'
-	errorFileName = tail + '.error'
+	diagFileName = 'mappingload.diag'
+	errorFileName = 'mappingload.error'
 	exptFileName = 'MLD_Expts.mapping.bcp'
 	exptMarkerFileName = 'MLD_Expt_Marker.mapping.bcp'
 	accFileName = 'ACC_Accession.mapping.bcp'
@@ -510,23 +509,26 @@ def getPrimaryKeys():
 
 	global exptKey, accKey, mgiKey
 
-       	results = db.sql('''select max(_Expt_key) + 1 as maxKey from MLD_Expts''', 'auto')
+       	results = db.sql('''select max(_Expt_key) + 1 as maxKey 
+		from MLD_Expts''', 'auto')
        	if results[0]['maxKey'] is None:
                	exptKey = 1000
        	else:
                	exptKey = results[0]['maxKey']
 
-       	results = db.sql('''select max(_Accession_key) + 1  as maxKey from ACC_Accession''', 'auto')
+       	results = db.sql('''select max(_Accession_key) + 1  as maxKey
+		from ACC_Accession''', 'auto')
        	if results[0]['maxKey'] is None:
                	accKey = 1000
        	else:
                	accKey = results[0]['maxKey']
 
-       	results = db.sql('''select maxNumericPart + 1 as maxKey from ACC_AccessionMax 
+       	results = db.sql('''select maxNumericPart + 1 as maxKey
+		from ACC_AccessionMax 
 		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
        	mgiKey = results[0]['maxKey']
 	
-def initExperimentMaster():
+def createExperimentMaster():
 	'''
 	# requires:
 	#
@@ -542,12 +544,11 @@ def initExperimentMaster():
 	# only run this once after the input file is ready to pick up the J:
 	#
 
-	global exptDict, seqExptDict, exptTag
+	global exptDict, seqExptDict
 
-	print "initExperimentMaster"
-
-	results = db.sql('''select _Expt_key, chromosome, tag
-		from MLD_Expts where _Refs_key = %d 
+	results = db.sql('''select _Expt_key, chromosome, tag 
+		from MLD_Expts 
+		where _Refs_key = %d 
 		order by tag''' % (referenceKey), 'auto')
 
 	# experiment records exists
@@ -600,7 +601,6 @@ def createExperimentBCP(chromosome):
 	'''
 
 	global exptKey, accKey, mgiKey, exptTag
-	global exptDict, seqExptDict
 
 	bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
 	bcpWrite(accFile, [accKey, \
@@ -633,11 +633,9 @@ def processFile():
 	#
 	'''
 
-	global exptDict, seqExptDict
 	global referenceKey
 
 	lineNum = 0
-	initExperimentMasterDone = 0
 	note = ''
 
 	# For each line in the input file
@@ -664,17 +662,13 @@ def processFile():
 			# if it's not a valid line, assume it's the note
 			note = line
 			continue
+#			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
 		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
 		assayKey = verifyAssay(assay)
 	        referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
 	        createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
 		error = not verifyChromosome(chromosome, lineNum)
-
-		# run once...needs the reference
-		if initExperimentMasterDone == 0 and referenceKey != 0:
-			initExperimentMaster()
-			initExperimentMasterDone = 1
 
 		if markerKey == 0 or \
 		   assayKey == 0 or \
@@ -704,6 +698,10 @@ def processFile():
 		# if errors, continue to next record
 		if chrExptKey == 0:
 			continue
+
+		# run once...needs the reference
+		if lineNum == 1:
+			createExperimentMaster()
 
 		# add marker to experiment marker file
 		bcpWrite(exptMarkerFile, \
