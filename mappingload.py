@@ -601,6 +601,7 @@ def createExperimentBCP(chromosome):
 	'''
 
 	global exptKey, accKey, mgiKey, exptTag
+	global exptDict, seqExptDict
 
 	bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
 	bcpWrite(accFile, [accKey, \
@@ -634,6 +635,7 @@ def processFile():
 	'''
 
 	global referenceKey
+	global exptDict, seqExptDict
 
 	lineNum = 0
 	note = ''
