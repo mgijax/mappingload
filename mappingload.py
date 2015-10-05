@@ -298,10 +298,10 @@ def init():
 	head, tail = os.path.split(inputFileName) 
 	diagFileName = tail + '.diag'
 	errorFileName = tail + '.error'
-	exptFileName = 'MLD_Expts.bcp'
-	exptMarkerFileName = 'MLD_Expt_Marker.bcp'
-	accFileName = 'ACC_Accession.bcp'
-	noteFileName = 'MLD_Notes.bcp'
+	exptFileName = 'MLD_Expts.mapping.bcp'
+	exptMarkerFileName = 'MLD_Expt_Marker.mapping.bcp'
+	accFileName = 'ACC_Accession.mapping.bcp'
+	noteFileName = 'MLD_Notes.mapping.bcp'
 
 	try:
 	    inputFile = open(inputFileName, 'r')
