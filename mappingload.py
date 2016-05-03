@@ -725,15 +725,7 @@ def processFile():
 	if len(note) > 0:
 
 		noteSeq = 1
-		
-		while len(note) > 255:
-			bcpWrite(noteFile, [referenceKey, noteSeq, note[:255], loaddate, loaddate])
-			newnote = note[255:]
-			note = newnote
-			noteSeq = noteSeq + 1
-
-		if len(note) > 0:
-			bcpWrite(noteFile, [referenceKey, noteSeq, note, loaddate, loaddate])
+		bcpWrite(noteFile, [referenceKey, noteSeq, note, loaddate, loaddate])
 
 def bcpWrite(fp, values):
 	'''
