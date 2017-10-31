@@ -166,7 +166,7 @@ exptType = "TEXT"
 bcpdelim = "|"
 
 referenceKey = 0	# Reference Key
-createdByKey = 0	# Created By Key
+createdByKey = 1000	# Created By Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
 matrixData = 0		# MLD_Extt_Marker.matrixData
 
@@ -545,6 +545,7 @@ def createExperimentMaster():
 	#
 
 	global exptDict, seqExptDict
+	global exptTag
 
 	results = db.sql('''select _Expt_key, chromosome, tag 
 		from MLD_Expts 
