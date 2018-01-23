@@ -724,9 +724,7 @@ def processFile():
 #	end of "for line in inputFile.readlines():"
 
 	if len(note) > 0:
-
-		noteSeq = 1
-		bcpWrite(noteFile, [referenceKey, noteSeq, note, loaddate, loaddate])
+		bcpWrite(noteFile, [referenceKey, note, loaddate, loaddate])
 
 def bcpWrite(fp, values):
 	'''
