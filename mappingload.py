@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 '''
 #
 # Purpose:
@@ -120,7 +118,6 @@
 
 import sys
 import os
-import string
 import getopt
 import re
 import db
@@ -178,619 +175,619 @@ exptTag = 1
 loaddate = loadlib.loaddate	# current date
 
 def showUsage():
-	'''
-	# requires:
-	#
-	# effects:
-	# Displays the correct usage of this program and exits
-	# with status of 1.
-	#
-	# returns:
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        # Displays the correct usage of this program and exits
+        # with status of 1.
+        #
+        # returns:
+        '''
  
-	usage = 'usage: %s -S server\n' % sys.argv[0] + \
-		'-D database\n' + \
-		'-U user\n' + \
-		'-P password file\n' + \
-		'-M mode\n' + \
-		'-I input file\n' + \
-		'-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n'
-	exit(1, usage)
+        usage = 'usage: %s -S server\n' % sys.argv[0] + \
+                '-D database\n' + \
+                '-U user\n' + \
+                '-P password file\n' + \
+                '-M mode\n' + \
+                '-I input file\n' + \
+                '-E Experiment Type (ex. "TEXT", "TEXT-Physical Mapping")\n'
+        exit(1, usage)
  
 def exit(status, message = None):
-	'''
-	# requires: status, the numeric exit status (integer)
-	#           message (string)
-	#
-	# effects:
-	# Print message to stderr and exits
-	#
-	# returns:
-	#
-	'''
+        '''
+        # requires: status, the numeric exit status (integer)
+        #           message (string)
+        #
+        # effects:
+        # Print message to stderr and exits
+        #
+        # returns:
+        #
+        '''
  
-	if message is not None:
-		sys.stderr.write('\n' + str(message) + '\n')
+        if message is not None:
+                sys.stderr.write('\n' + str(message) + '\n')
  
-	try:
-		inputFile.close()
-		diagFile.write('\n\nEnd Date/Time: %s\n' % (mgi_utils.date()))
-		errorFile.write('\n\nEnd Date/Time: %s\n' % (mgi_utils.date()))
-		diagFile.close()
-		errorFile.close()
-	except:
-		pass
+        try:
+                inputFile.close()
+                diagFile.write('\n\nEnd Date/Time: %s\n' % (mgi_utils.date()))
+                errorFile.write('\n\nEnd Date/Time: %s\n' % (mgi_utils.date()))
+                diagFile.close()
+                errorFile.close()
+        except:
+                pass
 
-	db.useOneConnection()
-	sys.exit(status)
+        db.useOneConnection()
+        sys.exit(status)
  
 def init():
-	'''
-	# requires: 
-	#
-	# effects: 
-	# 1. Processes command line options
-	# 2. Initializes local DBMS parameters
-	# 3. Initializes global file descriptors/file names
-	# 4. Initializes global keys
-	#
-	# returns:
-	#
-	'''
+        '''
+        # requires: 
+        #
+        # effects: 
+        # 1. Processes command line options
+        # 2. Initializes local DBMS parameters
+        # 3. Initializes global file descriptors/file names
+        # 4. Initializes global keys
+        #
+        # returns:
+        #
+        '''
  
-	global inputFile, diagFile, errorFile, errorFileName, diagFileName
-	global passwordFileName, noteFileName
-	global exptFile, exptMarkerFile, accFile, noteFile
-	global inputFileName, exptFileName, exptMarkerFileName, accFileName
-	global mode, exptType
+        global inputFile, diagFile, errorFile, errorFileName, diagFileName
+        global passwordFileName, noteFileName
+        global exptFile, exptMarkerFile, accFile, noteFile
+        global inputFileName, exptFileName, exptMarkerFileName, accFileName
+        global mode, exptType
  
-	try:
-    	    optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
-	except:
-	    showUsage()
+        try:
+            optlist, args = getopt.getopt(sys.argv[1:], 'S:D:U:P:M:I:R:E:C:')
+        except:
+            showUsage()
  
-	#
-	# Set server, database, user, passwords depending on options
-	# specified by user.
-	#
+        #
+        # Set server, database, user, passwords depending on options
+        # specified by user.
+        #
  
-	server = ''
-	database = ''
-	user = ''
-	password = ''
-	inputFileName = ''
-	jnum = ''
-	createdBy = ''
+        server = ''
+        database = ''
+        user = ''
+        password = ''
+        inputFileName = ''
+        jnum = ''
+        createdBy = ''
  
-	for opt in optlist:
-	    if opt[0] == '-S':
-		server = opt[1]
-	    elif opt[0] == '-D':
-		database = opt[1]
-	    elif opt[0] == '-U':
-		user = opt[1]
-	    elif opt[0] == '-P':
-		passwordFileName = opt[1]
-	    elif opt[0] == '-M':
-		mode = opt[1]
-	    elif opt[0] == '-I':
-		inputFileName = opt[1]
-	    elif opt[0] == '-E':
-		exptType = re.sub('"', '', opt[1])
-	    else:
-		showUsage()
+        for opt in optlist:
+            if opt[0] == '-S':
+                server = opt[1]
+            elif opt[0] == '-D':
+                database = opt[1]
+            elif opt[0] == '-U':
+                user = opt[1]
+            elif opt[0] == '-P':
+                passwordFileName = opt[1]
+            elif opt[0] == '-M':
+                mode = opt[1]
+            elif opt[0] == '-I':
+                inputFileName = opt[1]
+            elif opt[0] == '-E':
+                exptType = re.sub('"', '', opt[1])
+            else:
+                showUsage()
 
     # User must specify Server, Database, User and Password
-	password = string.strip(open(passwordFileName, 'r').readline())
-	if server == '' or \
-	   database == '' or \
-	   user == '' or \
-	   password == '' or \
-	   mode == '' or \
-	   inputFileName == '' or \
-	   exptType == '':
-		showUsage()
+        password = str.strip(open(passwordFileName, 'r').readline())
+        if server == '' or \
+           database == '' or \
+           user == '' or \
+           password == '' or \
+           mode == '' or \
+           inputFileName == '' or \
+           exptType == '':
+                showUsage()
 
-	# Initialize db.py DBMS parameters
-	db.set_sqlLogin(user, password, server, database)
-	db.useOneConnection(1)
+        # Initialize db.py DBMS parameters
+        db.set_sqlLogin(user, password, server, database)
+        db.useOneConnection(1)
  
-	diagFileName = 'mappingload.diag'
-	errorFileName = 'mappingload.error'
-	exptFileName = 'MLD_Expts.mapping.bcp'
-	exptMarkerFileName = 'MLD_Expt_Marker.mapping.bcp'
-	accFileName = 'ACC_Accession.mapping.bcp'
-	noteFileName = 'MLD_Notes.mapping.bcp'
+        diagFileName = 'mappingload.diag'
+        errorFileName = 'mappingload.error'
+        exptFileName = 'MLD_Expts.mapping.bcp'
+        exptMarkerFileName = 'MLD_Expt_Marker.mapping.bcp'
+        accFileName = 'ACC_Accession.mapping.bcp'
+        noteFileName = 'MLD_Notes.mapping.bcp'
 
-	try:
-	    inputFile = open(inputFileName, 'r')
-	except:
-	    exit(1, 'Could not open file %s\n' % inputFileName)
-		
-	try:
-	    diagFile = open(diagFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % diagFileName)
-		
-	try:
-	    errorFile = open(errorFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % errorFileName)
-		
-	try:
-	    exptFile = open(exptFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % exptFileName)
-		
-	try:
-	    exptMarkerFile = open(exptMarkerFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % exptMarkerFileName)
-		
-	try:
-	    accFile = open(accFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % accFileName)
-		
-	try:
-	    noteFile = open(noteFileName, 'w')
-	except:
-	    exit(1, 'Could not open file %s\n' % noteFileName)
-		
-	# Log all SQL
-	db.set_sqlLogFunction(db.sqlLogAll)
+        try:
+            inputFile = open(inputFileName, 'r')
+        except:
+            exit(1, 'Could not open file %s\n' % inputFileName)
+                
+        try:
+            diagFile = open(diagFileName, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % diagFileName)
+                
+        try:
+            errorFile = open(errorFileName, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % errorFileName)
+                
+        try:
+            exptFile = open(exptFileName, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % exptFileName)
+                
+        try:
+            exptMarkerFile = open(exptMarkerFileName, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % exptMarkerFileName)
+                
+        try:
+            accFile = open(accFileName, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % accFileName)
+                
+        try:
+            noteFile = open(noteFileName, 'w')
+        except:
+            exit(1, 'Could not open file %s\n' % noteFileName)
+                
+        # Log all SQL
+        db.set_sqlLogFunction(db.sqlLogAll)
 
-	# Set Log File Descriptor
-	db.set_commandLogFile(diagFileName)
+        # Set Log File Descriptor
+        db.set_commandLogFile(diagFileName)
 
-	diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
-	diagFile.write('Server: %s\n' % (server))
-	diagFile.write('Database: %s\n' % (database))
-	diagFile.write('User: %s\n' % (user))
-	diagFile.write('Input File: %s\n' % (inputFileName))
+        diagFile.write('Start Date/Time: %s\n' % (mgi_utils.date()))
+        diagFile.write('Server: %s\n' % (server))
+        diagFile.write('Database: %s\n' % (database))
+        diagFile.write('User: %s\n' % (user))
+        diagFile.write('Input File: %s\n' % (inputFileName))
 
-	errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
+        errorFile.write('Start Date/Time: %s\n\n' % (mgi_utils.date()))
 
 def verifyMode():
-	'''
-	# requires:
-	#
-	# effects:
-	#	Verifies the processing mode is valid.  If it is not valid,
-	#	the program is aborted.
-	#	Sets globals based on processing mode.
-	#	Deletes data based on processing mode.
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	Verifies the processing mode is valid.  If it is not valid,
+        #	the program is aborted.
+        #	Sets globals based on processing mode.
+        #	Deletes data based on processing mode.
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	global DEBUG
+        global DEBUG
 
-	if mode == 'preview':
-	    DEBUG = 1
-	elif mode not in ['incremental', 'full']:
-	    exit(1, 'Invalid Processing Mode:  %s\n' % (mode))
+        if mode == 'preview':
+            DEBUG = 1
+        elif mode not in ['incremental', 'full']:
+            exit(1, 'Invalid Processing Mode:  %s\n' % (mode))
 
 def verifyAssay(assay):
-	'''
-	# requires:
-	#	assay - string, the Assay term
-	#
-	# effects:
-	#	verifies that the Assay exists by checking the database
-	#	writes to the error file if the Assay is invalid
-	#	initializes global assayKey
-	#
-	# returns:
-	#	Assay key if found
-	#
-	'''
+        '''
+        # requires:
+        #	assay - string the Assay term
+        #
+        # effects:
+        #	verifies that the Assay exists by checking the database
+        #	writes to the error file if the Assay is invalid
+        #	initializes global assayKey
+        #
+        # returns:
+        #	Assay key if found
+        #
+        '''
 
-	if assayDict.has_key(assay):
-	    return assayDict[assay]
-	else:
-	    exit(1, 'Invalid Assay: %s\n' % (assay))
+        if assay in assayDict:
+            return assayDict[assay]
+        else:
+            exit(1, 'Invalid Assay: %s\n' % (assay))
 
 def verifyChromosome(chromosome, lineNum):
-	'''
-	# requires:
-	#	chromosome - the chromosome
-	#	lineNum - the line number of the record from the input file
-	#
-	# effects:
-	#	verifies that:
-	#		the Chromosome is valid
-	#	writes to the error file if the Chromosome is invalid
-	#
-	# returns:
-	#	0 if the Chromosome is invalid
-	#	1 if the Chromosome is valid
-	#
-	'''
+        '''
+        # requires:
+        #	chromosome - the chromosome
+        #	lineNum - the line number of the record from the input file
+        #
+        # effects:
+        #	verifies that:
+        #		the Chromosome is valid
+        #	writes to the error file if the Chromosome is invalid
+        #
+        # returns:
+        #	0 if the Chromosome is invalid
+        #	1 if the Chromosome is valid
+        #
+        '''
 
-	global chromosomeList
+        global chromosomeList
 
-	if chromosome in chromosomeList:
-	    return 1
-	else:
-	    errorFile.write('Invalid Chromosome (%d) %s\n' % (lineNum, chromosome))
-	    return 0
+        if chromosome in chromosomeList:
+            return 1
+        else:
+            errorFile.write('Invalid Chromosome (%d) %s\n' % (lineNum, chromosome))
+            return 0
 
 def verifyMarker(markerID, lineNum):
-	'''
-	# requires:
-	#	markerID - the Accession ID of the Marker
-	#	lineNum - the line number of the record from the input file
-	#
-	# effects:
-	#    verifies that:
-	#    the Marker exists either in the marker dictionary or the database
-	#    writes to the error file if the Marker is invalid
-	#    adds the marker id and key to the marker dictionary 
-	#        *if the Marker is valid)
-	#
-	# returns:
-	#	0 and '' if the Marker is invalid
-	#	Marker Key and Marker Symbol if the Marker is valid
-	#
-	'''
+        '''
+        # requires:
+        #	markerID - the Accession ID of the Marker
+        #	lineNum - the line number of the record from the input file
+        #
+        # effects:
+        #    verifies that:
+        #    the Marker exists either in the marker dictionary or the database
+        #    writes to the error file if the Marker is invalid
+        #    adds the marker id and key to the marker dictionary 
+        #        *if the Marker is valid)
+        #
+        # returns:
+        #	0 and '' if the Marker is invalid
+        #	Marker Key and Marker Symbol if the Marker is valid
+        #
+        '''
 
-	global markerDict
+        global markerDict
 
-	markerKey = None
+        markerKey = None
 
-	if markerDict.has_key(markerID):
-		[markerKey, markerSymbol] = string.split(markerDict[markerID], ':')
-		return(markerKey, markerSymbol)
-	else:
-		results = db.sql('''select m._Marker_key, m.symbol 
-			from MRK_Marker m, MRK_Acc_View a 
-			where a.accID = '%s' 
-			and a._Object_key = m._Marker_key 
-			and m._Organism_key = 1'''  % (markerID), 'auto')
-		for r in results:
-			markerKey = r['_Marker_key']
-			markerSymbol = r['symbol']
+        if markerID in markerDict:
+                [markerKey, markerSymbol] = str.split(markerDict[markerID], ':')
+                return(markerKey, markerSymbol)
+        else:
+                results = db.sql('''select m._Marker_key, m.symbol 
+                        from MRK_Marker m, MRK_Acc_View a 
+                        where a.accID = '%s' 
+                        and a._Object_key = m._Marker_key 
+                        and m._Organism_key = 1'''  % (markerID), 'auto')
+                for r in results:
+                        markerKey = r['_Marker_key']
+                        markerSymbol = r['symbol']
 
-		if markerKey is None:
-			errorFile.write('Invalid Mouse Marker (%d) %s\n' % (lineNum, markerID))
-			markerKey = 0
-			markerSymbol = ''
-		else:
-			markerDict[markerID] = `markerKey` + ':' + markerSymbol
+                if markerKey is None:
+                        errorFile.write('Invalid Mouse Marker (%d) %s\n' % (lineNum, markerID))
+                        markerKey = 0
+                        markerSymbol = ''
+                else:
+                        markerDict[markerID] = repr(markerKey) + ':' + markerSymbol
 
-	return(markerKey, markerSymbol)
+        return(markerKey, markerSymbol)
 
 def loadDictionaries():
-	'''
-	# requires:
-	#
-	# effects:
-	#	loads global dictionaries/lists: chromosomeList for lookup
-	#
-	# returns:
-	#	nothing
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	loads global dictionaries/lists: chromosomeList for lookup
+        #
+        # returns:
+        #	nothing
+        '''
 
-	global chromosomeList, assayDict, inputChrList
+        global chromosomeList, assayDict, inputChrList
 
-	results = db.sql('''select chromosome from MRK_Chromosome 
-		where _Organism_key = 1 
-		and chromosome not in ('UN') 
-		order by sequenceNum''', 'auto')
-	for r in results:
-		chromosomeList.append(r['chromosome'])
+        results = db.sql('''select chromosome from MRK_Chromosome 
+                where _Organism_key = 1 
+                and chromosome not in ('UN') 
+                order by sequenceNum''', 'auto')
+        for r in results:
+                chromosomeList.append(r['chromosome'])
 
         results = db.sql('select * from MLD_Assay_Types', 'auto')
-	for r in results:
-		assayDict[r['description']] = r['_Assay_Type_key']
+        for r in results:
+                assayDict[r['description']] = r['_Assay_Type_key']
 
-	# create unique list of chromosomes from input file
-	for line in inputFile.readlines():
-	    tokens = string.split(line[:-1], '|')
-	    chromosome = tokens[1]
-	    if chromosome not in inputChrList:
-		inputChrList.append(chromosome)
+        # create unique list of chromosomes from input file
+        for line in inputFile.readlines():
+            tokens = str.split(line[:-1], '|')
+            chromosome = tokens[1]
+            if chromosome not in inputChrList:
+                inputChrList.append(chromosome)
         inputFile.close()
 
 def getPrimaryKeys():
-	'''
-	# requires:
-	#
-	# effects:
-	#	get/store next primary keys
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	get/store next primary keys
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	global exptKey, accKey, mgiKey
+        global exptKey, accKey, mgiKey
 
-       	results = db.sql('''select max(_Expt_key) + 1 as maxKey 
-		from MLD_Expts''', 'auto')
-       	if results[0]['maxKey'] is None:
-               	exptKey = 1000
-       	else:
-               	exptKey = results[0]['maxKey']
+        results = db.sql('''select max(_Expt_key) + 1 as maxKey 
+                from MLD_Expts''', 'auto')
+        if results[0]['maxKey'] is None:
+                exptKey = 1000
+        else:
+                exptKey = results[0]['maxKey']
 
-       	results = db.sql('''select max(_Accession_key) + 1  as maxKey
-		from ACC_Accession''', 'auto')
-       	if results[0]['maxKey'] is None:
-               	accKey = 1000
-       	else:
-               	accKey = results[0]['maxKey']
+        results = db.sql('''select max(_Accession_key) + 1  as maxKey
+                from ACC_Accession''', 'auto')
+        if results[0]['maxKey'] is None:
+                accKey = 1000
+        else:
+                accKey = results[0]['maxKey']
 
-       	results = db.sql('''select maxNumericPart + 1 as maxKey
-		from ACC_AccessionMax 
-		where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
-       	mgiKey = results[0]['maxKey']
-	
+        results = db.sql('''select maxNumericPart + 1 as maxKey
+                from ACC_AccessionMax 
+                where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
+        mgiKey = results[0]['maxKey']
+        
 def createExperimentMaster():
-	'''
-	# requires:
-	#
-	# effects:
-	#	preparing for new/existing MLD_Expts, MLD_Expt_Marker
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	preparing for new/existing MLD_Expts, MLD_Expt_Marker
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	#
-	# only run this once after the input file is ready to pick up the J:
-	#
+        #
+        # only run this once after the input file is ready to pick up the J:
+        #
 
-	global exptDict, seqExptDict
-	global exptTag
+        global exptDict, seqExptDict
+        global exptTag
 
-	results = db.sql('''select _Expt_key, chromosome, tag 
-		from MLD_Expts 
-		where _Refs_key = %d 
-		order by tag''' % (referenceKey), 'auto')
+        results = db.sql('''select _Expt_key, chromosome, tag 
+                from MLD_Expts 
+                where _Refs_key = %d 
+                order by tag''' % (referenceKey), 'auto')
 
-	# experiment records exists
+        # experiment records exists
 
-	if len(results) > 0:
+        if len(results) > 0:
 
-		# if 'full', then delete existing MLD_Expt_Marker records
-		if mode == 'full':
-			# delete the existing *details*.....
-			db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
-				' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
-				'auto', execute = not DEBUG)
+                # if 'full', then delete existing MLD_Expt_Marker records
+                if mode == 'full':
+                        # delete the existing *details*.....
+                        db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
+                                ' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
+                                'auto', execute = not DEBUG)
 
-		# set seqExptDict to save the next max(sequenceNum) for each _Expt_key/chromosome
-		for r in results:
-			exptDict[r['chromosome']] = r['_Expt_key']
-			s = db.sql('''select max(sequenceNum) + 1 as maxKey
-			    from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
-			if s[0]['maxKey'] is None:
-			  seqExptDict[r['_Expt_key']] = 1
-			else:
-			  seqExptDict[r['_Expt_key']] = s[0]['maxKey']
+                # set seqExptDict to save the next max(sequenceNum) for each _Expt_key/chromosome
+                for r in results:
+                        exptDict[r['chromosome']] = r['_Expt_key']
+                        s = db.sql('''select max(sequenceNum) + 1 as maxKey
+                            from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
+                        if s[0]['maxKey'] is None:
+                          seqExptDict[r['_Expt_key']] = 1
+                        else:
+                          seqExptDict[r['_Expt_key']] = s[0]['maxKey']
 
- 			exptTag = r['tag'] + 1
+                        exptTag = r['tag'] + 1
 
-	# if no experiment records exist....create them
+        # if no experiment records exist....create them
 
-	else:
-		for c in chromosomeList:
-			if c in inputChrList:
-			    createExperimentBCP(c)
+        else:
+                for c in chromosomeList:
+                        if c in inputChrList:
+                            createExperimentBCP(c)
 
-		# Update the AccessionMax value
+                # Update the AccessionMax value
 
-		db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
-		db.commit()
+                db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
+                db.commit()
 
 def createExperimentBCP(chromosome):
-	'''
-	# requires:
-	#
-	# effects:
-	#	creates bcp entries for:
-	#		MLD_Expts
-	#		ACC_Accession
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	creates bcp entries for:
+        #		MLD_Expts
+        #		ACC_Accession
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	global exptKey, accKey, mgiKey, exptTag
-	global exptDict, seqExptDict
+        global exptKey, accKey, mgiKey, exptTag
+        global exptDict, seqExptDict
 
-	bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
-	bcpWrite(accFile, [accKey, \
-			mgiPrefix + str(mgiKey), \
-			mgiPrefix, \
-			mgiKey, \
-			logicalDBKey, \
-			exptKey, \
-			mgiTypeKey, \
-			0, 1, \
-			createdByKey, createdByKey, loaddate, loaddate])
+        bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
+        bcpWrite(accFile, [accKey, \
+                        mgiPrefix + str(mgiKey), \
+                        mgiPrefix, \
+                        mgiKey, \
+                        logicalDBKey, \
+                        exptKey, \
+                        mgiTypeKey, \
+                        0, 1, \
+                        createdByKey, createdByKey, loaddate, loaddate])
 
-	exptDict[chromosome] = exptKey
-	seqExptDict[exptKey] = 1
-	exptKey = exptKey + 1
-	exptTag = exptTag + 1
+        exptDict[chromosome] = exptKey
+        seqExptDict[exptKey] = 1
+        exptKey = exptKey + 1
+        exptTag = exptTag + 1
         accKey = accKey + 1
         mgiKey = mgiKey + 1
 
 def processFile():
-	'''
-	# requires:
-	#
-	# effects:
-	#	Reads input file
-	#	Verifies and Processes each line in the input file
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	Reads input file
+        #	Verifies and Processes each line in the input file
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	global referenceKey
-	global exptDict, seqExptDict
+        global referenceKey
+        global exptDict, seqExptDict
 
-	lineNum = 0
-	note = ''
+        lineNum = 0
+        note = ''
 
-	# For each line in the input file
+        # For each line in the input file
 
-	inputFile = open(inputFileName, 'r')
-	for line in inputFile.readlines():
+        inputFile = open(inputFileName, 'r')
+        for line in inputFile.readlines():
 
-		error = 0
-		lineNum = lineNum + 1
+                error = 0
+                lineNum = lineNum + 1
 
-		# Split the line into tokens
-		tokens = string.split(line[:-1], '|')
+                # Split the line into tokens
+                tokens = str.split(line[:-1], '|')
 
-		try:
-			markerID = tokens[0]
-			chromosome = tokens[1]
-			updateChr = tokens[2]
-			band = tokens[3]
-			assay = tokens[4]
-			description = tokens[5]
-			jnum = tokens[6]
-			createdBy = tokens[7]
-		except:
-			# if it's not a valid line, assume it's the note
-			note = line
-			continue
+                try:
+                        markerID = tokens[0]
+                        chromosome = tokens[1]
+                        updateChr = tokens[2]
+                        band = tokens[3]
+                        assay = tokens[4]
+                        description = tokens[5]
+                        jnum = tokens[6]
+                        createdBy = tokens[7]
+                except:
+                        # if it's not a valid line, assume it's the note
+                        note = line
+                        continue
 #			exit(1, 'Invalid Line (%d): %s\n' % (lineNum, line))
 
-		markerKey, markerSymbol = verifyMarker(markerID, lineNum)
-		assayKey = verifyAssay(assay)
-	        referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
-	        createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
-		error = not verifyChromosome(chromosome, lineNum)
+                markerKey, markerSymbol = verifyMarker(markerID, lineNum)
+                assayKey = verifyAssay(assay)
+                referenceKey = loadlib.verifyReference(jnum, 0, errorFile)
+                createdByKey = loadlib.verifyUser(createdBy, 0, errorFile)
+                error = not verifyChromosome(chromosome, lineNum)
 
-		if markerKey == 0 or \
-		   assayKey == 0 or \
-		   referenceKey == 0 or \
-		   createdByKey == 0:
-			# set error flag to true
-			error = 1
+                if markerKey == 0 or \
+                   assayKey == 0 or \
+                   referenceKey == 0 or \
+                   createdByKey == 0:
+                        # set error flag to true
+                        error = 1
 
-		# if errors, continue to next record
-		if error:
-			continue
+                # if errors, continue to next record
+                if error:
+                        continue
 
-		# if no errors, process
+                # if no errors, process
 
-		# run once...needs the reference
-		if lineNum == 1:
-			createExperimentMaster()
+                # run once...needs the reference
+                if lineNum == 1:
+                        createExperimentMaster()
 
-		# determine experiment key for this chromosome
-		# if it doesn't exist, create it
+                # determine experiment key for this chromosome
+                # if it doesn't exist, create it
 
-		if not exptDict.has_key(chromosome):
-			createExperimentBCP(chromosome)
+                if chromosome not in exptDict:
+                        createExperimentBCP(chromosome)
 
-		if not exptDict.has_key(chromosome):
-			errorFile.write('Cannot Find Experiment Key For Chromosome (%d): %s\n' % (lineNum, chromosome))
-			chrExptKey = 0
-		else:
-			chrExptKey = exptDict[chromosome]
+                if chromosome not in exptDict:
+                        errorFile.write('Cannot Find Experiment Key For Chromosome (%d): %s\n' % (lineNum, chromosome))
+                        chrExptKey = 0
+                else:
+                        chrExptKey = exptDict[chromosome]
 
-		# if errors, continue to next record
-		if chrExptKey == 0:
-			continue
+                # if errors, continue to next record
+                if chrExptKey == 0:
+                        continue
 
-		# add marker to experiment marker file
-		bcpWrite(exptMarkerFile, \
-			[chrExptKey, \
-			markerKey, \
-			alleleKey, \
-			assayKey, \
-			seqExptDict[chrExptKey], \
-			markerSymbol, \
-			description, \
-			matrixData, \
-			loaddate, loaddate])
+                # add marker to experiment marker file
+                bcpWrite(exptMarkerFile, \
+                        [chrExptKey, \
+                        markerKey, \
+                        alleleKey, \
+                        assayKey, \
+                        seqExptDict[chrExptKey], \
+                        markerSymbol, \
+                        description, \
+                        matrixData, \
+                        loaddate, loaddate])
 
-		# increment marker sequence number for the experiment
-		seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
+                # increment marker sequence number for the experiment
+                seqExptDict[chrExptKey] = seqExptDict[chrExptKey] + 1
 
 #	end of "for line in inputFile.readlines():"
 
-	if len(note) > 0:
-		bcpWrite(noteFile, [referenceKey, note, loaddate, loaddate])
+        if len(note) > 0:
+                bcpWrite(noteFile, [referenceKey, note, loaddate, loaddate])
 
 def bcpWrite(fp, values):
-	'''
-	#
-	# requires:
-	#	fp; file pointer of bcp file
-	#	values; list of values
-	#
-	# effects:
-	#	converts each value item to a string and writes out the values
-	#	to the bcpFile using the appropriate delimiter
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        #
+        # requires:
+        #	fp; file pointer of bcp file
+        #	values; list of values
+        #
+        # effects:
+        #	converts each value item to a str.and writes out the values
+        #	to the bcpFile using the appropriate delimiter
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	# convert all members of values to strings
-	strvalues = []
-	for v in values:
-		strvalues.append(str(v))
+        # convert all members of values to str.
+        strvalues = []
+        for v in values:
+                strvalues.append(str(v))
 
-	fp.write('%s\n' % (string.join(strvalues, bcpdelim)))
+        fp.write('%s\n' % (str.join(bcpdelim, strvalues)))
 
 def bcpFiles():
-	'''
-	# requires:
-	#
-	# effects:
-	#	BCPs the data into the database
-	#
-	# returns:
-	#	nothing
-	#
-	'''
+        '''
+        # requires:
+        #
+        # effects:
+        #	BCPs the data into the database
+        #
+        # returns:
+        #	nothing
+        #
+        '''
 
-	exptFile.close()
-	exptMarkerFile.close()
-	accFile.close()
-	noteFile.close()
-	db.commit()
+        exptFile.close()
+        exptMarkerFile.close()
+        accFile.close()
+        noteFile.close()
+        db.commit()
 
         bcpCommand = os.environ['PG_DBUTILS'] + '/bin/bcpin.csh'
-	currentDir = os.getcwd()
+        currentDir = os.getcwd()
 
-	cmd1 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
-	   (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expts', currentDir, exptFileName, bcpdelim)
+        cmd1 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+           (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expts', currentDir, exptFileName, bcpdelim)
 
-	cmd2 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+        cmd2 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
            (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Expt_Marker', currentDir, exptMarkerFileName, bcpdelim)
 
-	cmd3 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+        cmd3 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
            (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'ACC_Accession', currentDir, accFileName, bcpdelim)
 
-	cmd4 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
+        cmd4 = '%s %s %s %s %s %s "%s" "\\n" mgd' % \
            (bcpCommand, db.get_sqlServer(), db.get_sqlDatabase(), 'MLD_Notes', currentDir, noteFileName, bcpdelim)
 
-	diagFile.write('%s\n' % cmd1)
-	diagFile.write('%s\n' % cmd2)
-	diagFile.write('%s\n' % cmd3)
-	diagFile.write('%s\n' % cmd4)
+        diagFile.write('%s\n' % cmd1)
+        diagFile.write('%s\n' % cmd2)
+        diagFile.write('%s\n' % cmd3)
+        diagFile.write('%s\n' % cmd4)
 
-	os.system(cmd1)
-	os.system(cmd2)
-	os.system(cmd3)
-	os.system(cmd4)
+        os.system(cmd1)
+        os.system(cmd2)
+        os.system(cmd3)
+        os.system(cmd4)
 
 #
 # Main
@@ -812,10 +809,9 @@ getPrimaryKeys()
 processFile()
 
 if DEBUG:
-    print 'mappingload:debugging turned on: no data will be loaded'
+    print('mappingload:debugging turned on: no data will be loaded')
 else:
-    print 'mappinglaod:bcpFiles()'
+    print('mappinglaod:bcpFiles()')
     bcpFiles()
 
 exit(0)
-
