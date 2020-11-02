@@ -710,7 +710,6 @@ def processFile():
                         alleleKey, \
                         assayKey, \
                         seqExptDict[chrExptKey], \
-                        markerSymbol, \
                         description, \
                         matrixData, \
                         loaddate, loaddate])
