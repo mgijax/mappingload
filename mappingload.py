@@ -646,14 +646,15 @@ def processFile():
                 tokens = str.split(line[:-1], '|')
 
                 try:
-                        markerID = tokens[0]
-                        chromosome = tokens[1]
-                        updateChr = tokens[2]
-                        band = tokens[3]
-                        assay = tokens[4]
-                        description = tokens[5]
-                        jnum = tokens[6]
-                        createdBy = tokens[7]
+                        mappingKey = tokens[0]
+                        markerID = tokens[1]
+                        chromosome = tokens[2]
+                        updateChr = tokens[3]
+                        band = tokens[4]
+                        assay = tokens[5]
+                        description = tokens[6]
+                        jnum = tokens[7]
+                        createdBy = tokens[8]
                 except:
                         # if it's not a valid line, assume it's the note
                         note = line
