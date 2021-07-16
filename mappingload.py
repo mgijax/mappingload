@@ -506,12 +506,8 @@ def getPrimaryKeys():
 
         global exptKey, accKey, mgiKey
 
-        results = db.sql('''select max(_Expt_key) + 1 as maxKey 
-                from MLD_Expts''', 'auto')
-        if results[0]['maxKey'] is None:
-                exptKey = 1000
-        else:
-                exptKey = results[0]['maxKey']
+        results = db.sql(''' select nextval('mld_expts_seq') as maxKey ''', 'auto')
+        exptKey = results[0]['maxKey']
 
         results = db.sql('''select max(_Accession_key) + 1  as maxKey
                 from ACC_Accession''', 'auto')
@@ -787,6 +783,10 @@ def bcpFiles():
         os.system(cmd2)
         os.system(cmd3)
         os.system(cmd4)
+
+        # update mld_expt_seq auto-sequence
+        db.sql(''' select setval('mld_expts_seq', (select max(_Expt_key) from MLD_Expts)) ''', None)
+        db.commit()
 
 #
 # Main
