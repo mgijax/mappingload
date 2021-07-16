@@ -702,7 +702,8 @@ def processFile():
 
                 # add marker to experiment marker file
                 bcpWrite(exptMarkerFile, \
-                        [chrExptKey, \
+                        [mappingKey, \
+                        chrExptKey, \
                         markerKey, \
                         alleleKey, \
                         assayKey, \
