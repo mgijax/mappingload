@@ -559,7 +559,7 @@ def createExperimentMaster():
                 # set seqExptDict to save the next max(sequenceNum) for each _Expt_key/chromosome
                 for r in results:
                         exptDict[r['chromosome']] = r['_Expt_key']
-                        s = db.sql('''select max(sequenceNum) + 1 as maxKey
+                        s = db.sql('''select nextval('mld_expt_marker_seq') as maxKey
                             from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
                         if s[0]['maxKey'] is None:
                           seqExptDict[r['_Expt_key']] = 1
@@ -786,8 +786,12 @@ def bcpFiles():
         os.system(cmd3)
         os.system(cmd4)
 
-        # update mld_expt_seq auto-sequence
+        # update mld_expts_seq auto-sequence
         db.sql(''' select setval('mld_expts_seq', (select max(_Expt_key) from MLD_Expts)) ''', None)
+        db.commit()
+
+        # update mld_expt_marker_seq auto-sequence
+        db.sql(''' select setval('mld_expt_marker_seq', (select max(_Assoc_key) from MLD_Expt_Marker)) ''', None)
         db.commit()
 
 #
