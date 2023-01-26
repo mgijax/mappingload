@@ -1,3 +1,10 @@
+TAG: mappingload-6-0-22-1
+DATE: 01/26/2023
+STAFF: 
+CHANGES: FL2/fl2a - add mappingonlyload.py/sh  - creates
+    mappingload format file from curator created file
+    updates chromosome and band if indicated in the file
+
 TAG: mappingload-6-0-17-5
 DATE: 01/11/2022
 STAFF: lec
