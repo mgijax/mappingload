@@ -552,12 +552,22 @@ def createExperimentMaster():
                 # if 'full', then delete existing MLD_Expt_Marker records
                 if mode == 'full':
                         # delete the existing *details*.....
-                        db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
-                                ' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
-                                'auto', execute = not DEBUG)
+                        #db.sql('delete MLD_Expt_Marker from MLD_Expt_Marker m, MLD_Expts e ' + \
+                        #        ' where e._Refs_key = %d and e._Expt_key = m._Expt_key ' % (referenceKey), \
+                        #        'auto', execute = not DEBUG)
+                        db.sql('''select e._expt_key 
+                            into temporary table toDelete
+                            from MLD_Expts e
+                            where e._Refs_key = %d''' % (referenceKey), None) 
+                        
+                        db.sql('''create index idx1 on toDelete(_expt_key)''')
+                        db.sql('''delete from MLD_Expts e
+                            using toDelete d
+                            where e._expt_key = d._expt_key''', None, execute = not DEBUG)
 
                 # set seqExptDict to save the next max(sequenceNum) for each _Expt_key/chromosome
-                for r in results:
+                else:
+                    for r in results:
                         exptDict[r['chromosome']] = r['_Expt_key']
                         s = db.sql('''select nextval('mld_expt_marker_seq') as maxKey
                             from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
@@ -568,17 +578,16 @@ def createExperimentMaster():
 
                         exptTag = r['tag'] + 1
 
-        # if no experiment records exist....create them
+        # now create experiments
 
-        else:
-                for c in chromosomeList:
-                        if c in inputChrList:
-                            createExperimentBCP(c)
+        for c in chromosomeList:
+                if c in inputChrList:
+                    createExperimentBCP(c)
 
-                # Update the AccessionMax value
+        # Update the AccessionMax value
 
-                db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
-                db.commit()
+        db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
+        db.commit()
 
 def createExperimentBCP(chromosome):
         '''
