@@ -795,6 +795,10 @@ def bcpFiles():
         db.sql(''' select setval('mld_expts_seq', (select max(_Expt_key) from MLD_Expts)) ''', None)
         db.commit()
 
+        # update mld_expt_marker_seq auto-sequence
+        db.sql(''' select setval('mld_expt_marker_seq', (select max(_Assoc_key) from MLD_Expt_Marker)) ''', None)
+        db.commit()
+
 #
 # Main
 #
