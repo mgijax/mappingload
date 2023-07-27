@@ -509,16 +509,13 @@ def getPrimaryKeys():
         results = db.sql(''' select nextval('mld_expts_seq') as maxKey ''', 'auto')
         exptKey = results[0]['maxKey']
 
-        results = db.sql('''select max(_Accession_key) + 1  as maxKey
-                from ACC_Accession''', 'auto')
+        results = db.sql('''select max(_Accession_key) + 1  as maxKey from ACC_Accession''', 'auto')
         if results[0]['maxKey'] is None:
                 accKey = 1000
         else:
                 accKey = results[0]['maxKey']
 
-        results = db.sql('''select maxNumericPart + 1 as maxKey
-                from ACC_AccessionMax 
-                where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
+        results = db.sql('''select maxNumericPart + 1 as maxKey from ACC_AccessionMax where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
         mgiKey = results[0]['maxKey']
         
 def createExperimentMaster():
@@ -569,9 +566,8 @@ def createExperimentMaster():
                 else:
                     for r in results:
                         exptDict[r['chromosome']] = r['_Expt_key']
-                        s = db.sql('''select nextval('mld_expt_marker_seq') as maxKey
-                            from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
-                        if s[0]['maxKey'] is None:
+                        s = db.sql('''select max(sequencenum) as maxKey from MLD_Expt_Marker where _Expt_key = %d''' % (r['_Expt_key']), 'auto')
+                        if len(s) == 0:
                           seqExptDict[r['_Expt_key']] = 1
                         else:
                           seqExptDict[r['_Expt_key']] = s[0]['maxKey']
@@ -797,10 +793,6 @@ def bcpFiles():
 
         # update mld_expts_seq auto-sequence
         db.sql(''' select setval('mld_expts_seq', (select max(_Expt_key) from MLD_Expts)) ''', None)
-        db.commit()
-
-        # update mld_expt_marker_seq auto-sequence
-        db.sql(''' select setval('mld_expt_marker_seq', (select max(_Assoc_key) from MLD_Expt_Marker)) ''', None)
         db.commit()
 
 #
