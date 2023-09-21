@@ -167,10 +167,11 @@ createdByKey = 1000	# Created By Key
 alleleKey = ''		# MLD_Expt_Marker._Allele_key
 matrixData = 0		# MLD_Extt_Marker.matrixData
 
-exptKey = 1000
-accKey = 1000
-mgiKey = 1000
+exptKey = 0
+accKey = 0
+mgiKey = 0
 exptTag = 1
+exptCount = 0
 
 loaddate = loadlib.loaddate	# current date
 
@@ -510,10 +511,7 @@ def getPrimaryKeys():
         exptKey = results[0]['maxKey']
 
         results = db.sql('''select max(_Accession_key) + 1  as maxKey from ACC_Accession''', 'auto')
-        if results[0]['maxKey'] is None:
-                accKey = 1000
-        else:
-                accKey = results[0]['maxKey']
+        accKey = results[0]['maxKey']
 
         results = db.sql('''select maxNumericPart + 1 as maxKey from ACC_AccessionMax where prefixPart = '%s' ''' % (mgiPrefix), 'auto')
         mgiKey = results[0]['maxKey']
@@ -580,11 +578,6 @@ def createExperimentMaster():
                 if c in inputChrList:
                     createExperimentBCP(c)
 
-        # Update the AccessionMax value
-
-        db.sql('select * from ACC_setMax (%d)' % (exptTag), None)
-        db.commit()
-
 def createExperimentBCP(chromosome):
         '''
         # requires:
@@ -600,7 +593,7 @@ def createExperimentBCP(chromosome):
         '''
 
         global exptKey, accKey, mgiKey, exptTag
-        global exptDict, seqExptDict
+        global exptDict, seqExptDict, exptCount
 
         bcpWrite(exptFile, [exptKey, referenceKey, exptType, exptTag, chromosome, loaddate, loaddate])
         bcpWrite(accFile, [accKey, \
@@ -619,6 +612,7 @@ def createExperimentBCP(chromosome):
         exptTag = exptTag + 1
         accKey = accKey + 1
         mgiKey = mgiKey + 1
+        exptCount = exptCount + 1
 
 def processFile():
         '''
@@ -635,6 +629,7 @@ def processFile():
 
         global referenceKey
         global exptDict, seqExptDict
+        global lineNum
 
         lineNum = 0
         note = ''
@@ -798,6 +793,11 @@ def bcpFiles():
         # update mld_expt_marker_seq auto-sequence
         db.sql(''' select setval('mld_expt_marker_seq', (select max(_Assoc_key) from MLD_Expt_Marker)) ''', None)
         db.commit()
+
+        if exptCount > 0:
+                # update the max accession ID value
+                db.sql('select * from ACC_setMax (%d)' % (exptCount), None)
+                db.commit()
 
 #
 # Main

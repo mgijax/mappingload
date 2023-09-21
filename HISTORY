@@ -1,3 +1,9 @@
+TAG: mappingload-6-0-22-5
+DATE: 09/21/2023
+STAFF: lec
+wts2-1282/fl2-545/nomenclature/mapping created duplicate MGI:xxx
+mappingload.py:                db.sql('select * from ACC_setMax (%d)' % (exptCount), None)
+
 TAG: mappingload-6-0-22-4
 TAG: mappingload-6-0-22-3
 DATE: 07/27/2023
